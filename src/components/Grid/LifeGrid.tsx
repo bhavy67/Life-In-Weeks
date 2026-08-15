@@ -77,10 +77,10 @@ export default function LifeGrid({
   const rowGap       = viewMode === 'weeks' ? 'mb-[1.5px]' : viewMode === 'months' ? 'mb-[3px]' : 'mb-2';
   const cellGap      = viewMode === 'weeks' ? '1.5px' : viewMode === 'months' ? '3px' : '8px';
   const cellTemplate = viewMode === 'weeks'
-    ? 'minmax(7px, 18px)'
+    ? 'minmax(8px, 22px)'
     : viewMode === 'months'
-      ? 'minmax(18px, 56px)'
-      : 'minmax(44px, 88px)';
+      ? 'minmax(20px, 1fr)'
+      : 'minmax(50px, 1fr)';
 
   const handleHover = useCallback(
     (cellIndex: number, el: HTMLElement | null) => {
