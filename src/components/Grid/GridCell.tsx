@@ -12,10 +12,10 @@ interface GridCellProps {
   onHover: (index: number, el: HTMLElement | null) => void;
 }
 
-const SIZE: Record<ViewMode, string> = {
-  weeks: 'w-[7px] h-[7px] sm:w-[8px] sm:h-[8px]',
-  months: 'w-[18px] h-[18px] sm:w-[22px] sm:h-[22px]',
-  years: 'w-11 h-11 sm:w-14 sm:h-14',
+const ROUNDED: Record<ViewMode, string> = {
+  weeks: 'rounded-[1.5px]',
+  months: 'rounded-[3px]',
+  years: 'rounded-md',
 };
 
 const GridCell = React.memo(
@@ -47,12 +47,12 @@ const GridCell = React.memo(
     return (
       <div
         className={[
-          'relative flex-shrink-0 border rounded-[1.5px] transition-[filter] duration-100',
-          SIZE[viewMode],
+          'relative border transition-[filter] duration-100 w-full aspect-square',
+          ROUNDED[viewMode],
           isCurrent ? 'cell-current cursor-pointer' : '',
           isPast ? 'cursor-pointer hover:brightness-150' : '',
           isFuture ? 'cursor-default' : '',
-          viewMode === 'years' ? 'flex items-center justify-center rounded-md' : '',
+          viewMode === 'years' ? 'flex items-center justify-center' : '',
         ]
           .filter(Boolean)
           .join(' ')}
@@ -79,11 +79,9 @@ const GridCell = React.memo(
           <div
             className="absolute rounded-full"
             style={
-              viewMode === 'weeks'
-                ? { bottom: 0, right: 0, width: 3, height: 3, background: 'var(--milestone-dot)' }
-                : viewMode === 'months'
-                  ? { bottom: 2, right: 2, width: 4, height: 4, background: 'var(--milestone-dot)' }
-                  : { bottom: 4, right: 4, width: 5, height: 5, background: 'var(--milestone-dot)' }
+              viewMode === 'years'
+                ? { bottom: 4, right: 4, width: 5, height: 5, background: 'var(--milestone-dot)' }
+                : { bottom: '5%', right: '5%', width: '30%', height: '30%', background: 'var(--milestone-dot)' }
             }
           />
         )}

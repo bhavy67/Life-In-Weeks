@@ -65,8 +65,13 @@ export default function LifeGrid({
   const cols = viewMode === 'weeks' ? 52 : viewMode === 'months' ? 12 : 10;
   const rows = viewMode === 'years' ? Math.ceil(lifespan / 10) : lifespan;
 
-  const gap    = viewMode === 'weeks' ? 'gap-[1.5px]' : viewMode === 'months' ? 'gap-[3px]' : 'gap-2';
-  const rowGap = viewMode === 'weeks' ? 'mb-[1.5px]' : viewMode === 'months' ? 'mb-[3px]' : 'mb-2';
+  const rowGap       = viewMode === 'weeks' ? 'mb-[1.5px]' : viewMode === 'months' ? 'mb-[3px]' : 'mb-2';
+  const cellGap      = viewMode === 'weeks' ? '1.5px' : viewMode === 'months' ? '3px' : '8px';
+  const cellTemplate = viewMode === 'weeks'
+    ? 'minmax(7px, 12px)'
+    : viewMode === 'months'
+      ? 'minmax(18px, 28px)'
+      : 'minmax(44px, 56px)';
 
   const handleHover = useCallback(
     (cellIndex: number, el: HTMLElement | null) => {
@@ -183,8 +188,8 @@ export default function LifeGrid({
 
   return (
     <div className="relative">
-      <div className={viewMode === 'weeks' ? 'overflow-x-auto pb-2' : ''}>
-        <div className="inline-block min-w-0">
+      <div className="overflow-x-auto pb-2">
+        <div className="w-full">
           {Array.from({ length: rows }, (_, row) => (
             <div key={row} className={`flex items-center ${rowGap}`}>
               {/* Row label */}
@@ -192,7 +197,15 @@ export default function LifeGrid({
                 {rowLabel(row)}
               </div>
               {/* Cells */}
-              <div className={`flex ${gap}`}>{renderRow(row)}</div>
+              <div
+                className="flex-1 grid"
+                style={{
+                  gridTemplateColumns: `repeat(${cols}, ${cellTemplate})`,
+                  gap: cellGap,
+                }}
+              >
+                {renderRow(row)}
+              </div>
             </div>
           ))}
         </div>
