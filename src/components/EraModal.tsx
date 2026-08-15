@@ -49,13 +49,13 @@ export default function EraModal({ existing, maxWeeks, onSave, onDelete, onClose
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-sm bg-[#0f0f0f] border border-[#222] rounded-2xl p-5 fade-in">
+      <div className="w-full max-w-sm bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl p-5 fade-in">
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
-          <div className="text-white text-base font-light">
+          <div className="text-[var(--text-primary)] text-base font-light">
             {existing ? 'Edit era' : 'Add an era'}
           </div>
-          <button onClick={onClose} className="text-[#444] hover:text-[#888] transition-colors p-1">
+          <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors p-1">
             <X size={16} />
           </button>
         </div>
@@ -68,12 +68,12 @@ export default function EraModal({ existing, maxWeeks, onSave, onDelete, onClose
           placeholder="Era name (e.g. Childhood)"
           autoFocus
           maxLength={40}
-          className="w-full bg-[#141414] border border-[#222] rounded-lg px-3 py-2.5 text-white placeholder:text-[#333] text-sm focus:outline-none focus:border-[#3a3a3a] mb-4"
+          className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--border-elevated)] mb-4"
         />
 
         {/* Color picker */}
         <div className="mb-5">
-          <div className="text-[#444] text-xs mb-2">Color</div>
+          <div className="text-[var(--text-muted)] text-xs mb-2">Color</div>
           <div className="flex flex-wrap gap-2">
             {PRESET_COLORS.map((c) => (
               <button
@@ -82,7 +82,7 @@ export default function EraModal({ existing, maxWeeks, onSave, onDelete, onClose
                 className="w-7 h-7 rounded-full border-2 transition-all"
                 style={{
                   background: c,
-                  borderColor: color === c ? '#fff' : 'transparent',
+                  borderColor: color === c ? 'var(--text-primary)' : 'transparent',
                   transform: color === c ? 'scale(1.15)' : 'scale(1)',
                 }}
               />
@@ -92,34 +92,34 @@ export default function EraModal({ existing, maxWeeks, onSave, onDelete, onClose
 
         {/* Age range */}
         <div className="mb-5">
-          <div className="text-[#444] text-xs mb-3">Age range</div>
+          <div className="text-[var(--text-muted)] text-xs mb-3">Age range</div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="text-[#333] text-xs mb-1">From age</div>
+              <div className="text-[var(--text-muted)] text-xs mb-1">From age</div>
               <input
                 type="number"
                 min={0}
                 max={endAge - 1}
                 value={startAge}
                 onChange={(e) => setStartAge(Math.min(Number(e.target.value), endAge - 1))}
-                className="w-full bg-[#141414] border border-[#222] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#3a3a3a] [appearance:textfield]"
+                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--border-elevated)] [appearance:textfield]"
               />
             </div>
             <div>
-              <div className="text-[#333] text-xs mb-1">To age</div>
+              <div className="text-[var(--text-muted)] text-xs mb-1">To age</div>
               <input
                 type="number"
                 min={startAge + 1}
                 max={maxAge}
                 value={endAge}
                 onChange={(e) => setEndAge(Math.max(Number(e.target.value), startAge + 1))}
-                className="w-full bg-[#141414] border border-[#222] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#3a3a3a] [appearance:textfield]"
+                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--border-elevated)] [appearance:textfield]"
               />
             </div>
           </div>
 
           {/* Preview bar */}
-          <div className="mt-3 h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
+          <div className="mt-3 h-2 bg-[var(--progress-track)] rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all"
               style={{
@@ -136,14 +136,14 @@ export default function EraModal({ existing, maxWeeks, onSave, onDelete, onClose
           {existing && onDelete && (
             <button
               onClick={() => { onDelete(); onClose(); }}
-              className="flex items-center gap-1.5 px-3 py-2 text-[#444] hover:text-red-500 border border-[#1f1f1f] hover:border-red-900/50 rounded-lg text-sm transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-[var(--text-muted)] hover:text-red-500 border border-[var(--border-subtle)] hover:border-red-900/50 rounded-lg text-sm transition-colors"
             >
               <Trash2 size={13} />
             </button>
           )}
           <button
             onClick={onClose}
-            className="flex-1 py-2 border border-[#222] text-[#555] hover:text-[#888] rounded-lg text-sm transition-colors"
+            className="flex-1 py-2 border border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] rounded-lg text-sm transition-colors"
           >
             Cancel
           </button>

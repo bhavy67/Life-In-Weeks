@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
-import { Settings, Download, BarChart2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Settings, Download, BarChart2, Sun, Moon } from 'lucide-react';
 import type { Era, Milestone, UserConfig, ViewMode } from './types';
 import { KEYS } from './utils/storageKeys';
 import { useStorage } from './hooks/useStorage';
@@ -23,6 +23,7 @@ export default function App() {
   const [user, setUser] = useStorage<UserConfig | null>(KEYS.user, null);
   const [milestones, setMilestones] = useStorage<Milestone[]>(KEYS.milestones, []);
   const [eras, setEras] = useStorage<Era[]>(KEYS.eras, []);
+  const [theme, setTheme] = useStorage<'dark' | 'light'>(KEYS.theme, 'dark');
 
   const [viewMode, setViewMode] = useState<ViewMode>(() =>
     window.innerWidth < 640 ? 'years' : 'weeks',
@@ -34,6 +35,14 @@ export default function App() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('light', theme === 'light');
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }, [theme, setTheme]);
 
   // Always call hooks unconditionally — use fallback so hooks order is stable
   const grid = useLifeGrid(user ?? FALLBACK_USER, milestones, eras);
@@ -83,7 +92,8 @@ export default function App() {
     const { default: html2canvas } = await import('html2canvas');
     const el = gridRef.current;
     if (!el) return;
-    const canvas = await html2canvas(el, { backgroundColor: '#080808', scale: 2 });
+    const bgColor = theme === 'light' ? '#f2f2f2' : '#0d0d0d';
+    const canvas = await html2canvas(el, { backgroundColor: bgColor, scale: 2 });
     const link = document.createElement('a');
     link.download = `life-in-weeks-${user.name.replace(/\s+/g, '-').toLowerCase()}.png`;
     link.href = canvas.toDataURL('image/png');
@@ -101,25 +111,27 @@ export default function App() {
       : undefined;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#080808]">
+    <div className="flex flex-col h-screen overflow-hidden bg-[var(--bg-app)]">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-[#141414] flex-shrink-0">
-        <div className="text-[#333] text-xs tracking-[0.25em] uppercase select-none hidden sm:block">
+      <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-[var(--border-faint)] flex-shrink-0">
+        <div className="text-[var(--text-muted)] text-xs tracking-[0.25em] uppercase select-none hidden sm:block">
           Life in Weeks
         </div>
-        <div className="text-[#333] text-xs tracking-widest uppercase select-none sm:hidden">
+        <div className="text-[var(--text-muted)] text-xs tracking-widest uppercase select-none sm:hidden">
           LiW
         </div>
 
         {/* View toggle */}
-        <div className="flex gap-0.5 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-0.5">
+        <div className="flex gap-0.5 bg-[var(--bg-toggle)] border border-[var(--border-faint)] rounded-lg p-0.5">
           {VIEW_MODES.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setViewMode(id)}
               className={[
                 'px-2.5 sm:px-3 py-1 rounded-md text-xs transition-all duration-150',
-                viewMode === id ? 'bg-[#1f1f1f] text-white' : 'text-[#444] hover:text-[#666]',
+                viewMode === id
+                  ? 'bg-[var(--bg-active)] text-[var(--text-primary)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-tertiary)]',
               ].join(' ')}
             >
               {label}
@@ -131,21 +143,28 @@ export default function App() {
         <div className="flex items-center gap-0.5">
           <button
             onClick={() => setShowMobileSidebar(true)}
-            className="lg:hidden p-2 text-[#444] hover:text-[#777] transition-colors"
+            className="lg:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Stats"
           >
             <BarChart2 size={16} />
           </button>
           <button
             onClick={handleExport}
-            className="p-2 text-[#444] hover:text-[#777] transition-colors"
+            className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Export PNG"
           >
             <Download size={16} />
           </button>
           <button
+            onClick={toggleTheme}
+            className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+          <button
             onClick={() => setShowSettings(true)}
-            className="p-2 text-[#444] hover:text-[#777] transition-colors"
+            className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Settings"
           >
             <Settings size={16} />
@@ -172,13 +191,13 @@ export default function App() {
             onCellClick={handleCellClick}
             gridRef={gridRef}
           />
-          <p className="mt-6 text-[#252525] text-xs select-none">
+          <p className="mt-6 text-[var(--text-muted)] text-xs select-none">
             Click any past week to pin a memory.
           </p>
         </main>
 
         {/* Desktop sidebar */}
-        <aside className="hidden lg:block w-64 xl:w-72 border-l border-[#141414] overflow-y-auto p-5 flex-shrink-0">
+        <aside className="hidden lg:block w-64 xl:w-72 border-l border-[var(--border-faint)] overflow-y-auto p-5 flex-shrink-0">
           <Sidebar
             name={user.name}
             pctLived={grid.pctLived}
@@ -200,10 +219,10 @@ export default function App() {
           onClick={() => setShowMobileSidebar(false)}
         >
           <div
-            className="w-full max-h-[70vh] bg-[#0f0f0f] border-t border-[#1f1f1f] rounded-t-2xl p-5 overflow-y-auto slide-up"
+            className="w-full max-h-[70vh] bg-[var(--bg-surface)] border-t border-[var(--border)] rounded-t-2xl p-5 overflow-y-auto slide-up"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-10 h-1 bg-[#2a2a2a] rounded-full mx-auto mb-5" />
+            <div className="w-10 h-1 bg-[var(--border)] rounded-full mx-auto mb-5" />
             <Sidebar
               name={user.name}
               pctLived={grid.pctLived}

@@ -27,14 +27,12 @@ interface Props {
   gridRef: React.RefObject<HTMLDivElement | null>;
 }
 
-// Convert cell index (in current viewMode) to approximate week index (for era lookup)
 function toWeekIndex(viewMode: ViewMode, cellIndex: number): number {
   if (viewMode === 'weeks') return cellIndex;
   if (viewMode === 'months') return Math.floor((cellIndex * 52) / 12);
   return cellIndex * 52;
 }
 
-// Resolve which week index to emit when a cell is clicked
 function resolveClickWeekIndex(viewMode: ViewMode, cellIndex: number): number {
   if (viewMode === 'weeks') return cellIndex;
   if (viewMode === 'months') return Math.floor((cellIndex * 52) / 12);
@@ -67,10 +65,9 @@ export default function LifeGrid({
         : currentYearIndex;
 
   const cols = viewMode === 'weeks' ? 52 : viewMode === 'months' ? 12 : 10;
-  const rows =
-    viewMode === 'years' ? Math.ceil(lifespan / 10) : lifespan;
+  const rows = viewMode === 'years' ? Math.ceil(lifespan / 10) : lifespan;
 
-  const gap = viewMode === 'weeks' ? 'gap-[1.5px]' : viewMode === 'months' ? 'gap-[3px]' : 'gap-2';
+  const gap    = viewMode === 'weeks' ? 'gap-[1.5px]' : viewMode === 'months' ? 'gap-[3px]' : 'gap-2';
   const rowGap = viewMode === 'weeks' ? 'mb-[1.5px]' : viewMode === 'months' ? 'mb-[3px]' : 'mb-2';
 
   const handleHover = useCallback(
@@ -161,8 +158,7 @@ export default function LifeGrid({
             ? milestoneMonthSet.has(cellIndex)
             : milestoneYearSet.has(cellIndex);
 
-      const label =
-        viewMode === 'years' ? String(cellIndex) : undefined;
+      const label = viewMode === 'years' ? String(cellIndex) : undefined;
 
       cells.push(
         <GridCell
@@ -181,7 +177,6 @@ export default function LifeGrid({
     return cells;
   };
 
-  // Row label (age)
   const rowLabel = (row: number): string => {
     if (viewMode === 'years') return `${row * 10}s`;
     if (row % 5 === 0) return String(row);
@@ -195,7 +190,7 @@ export default function LifeGrid({
           {Array.from({ length: rows }, (_, row) => (
             <div key={row} className={`flex items-center ${rowGap}`}>
               {/* Row label */}
-              <div className="w-7 flex-shrink-0 text-right pr-2 text-[10px] text-[#333] font-mono select-none">
+              <div className="w-7 flex-shrink-0 text-right pr-2 text-[10px] text-[var(--text-muted)] font-mono select-none">
                 {rowLabel(row)}
               </div>
               {/* Cells */}
@@ -215,16 +210,16 @@ export default function LifeGrid({
             transform: 'translate(-50%, -100%)',
           }}
         >
-          <div className="bg-[#1a1a1a] border border-[#2e2e2e] rounded-lg px-3 py-2 text-xs shadow-xl whitespace-nowrap max-w-[220px]">
-            <div className="text-white font-medium">
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-elevated)] rounded-lg px-3 py-2 text-xs shadow-xl whitespace-nowrap max-w-[220px]">
+            <div className="text-[var(--text-primary)] font-medium">
               {tooltip.milestone?.emoji && (
                 <span className="mr-1">{tooltip.milestone.emoji}</span>
               )}
               {tooltip.milestone ? tooltip.milestone.title : tooltip.title}
             </div>
-            <div className="text-[#555] mt-0.5">{tooltip.sub}</div>
+            <div className="text-[var(--text-tertiary)] mt-0.5">{tooltip.sub}</div>
             {tooltip.milestone?.description && (
-              <div className="text-[#888] mt-1 text-[11px] max-w-[200px] truncate">
+              <div className="text-[var(--text-secondary)] mt-1 text-[11px] max-w-[200px] truncate">
                 {tooltip.milestone.description}
               </div>
             )}

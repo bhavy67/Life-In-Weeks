@@ -1,11 +1,99 @@
 @import "tailwindcss";
 
+/* ── Theme tokens ───────────────────────────────────── */
+:root {
+  color-scheme: dark;
+
+  --bg-app:     #0d0d0d;
+  --bg-surface: #161616;
+  --bg-input:   #1d1d1d;
+  --bg-hover:   #1f1f1f;
+  --bg-toggle:  #111111;
+  --bg-active:  #282828;
+
+  --border:          #2c2c2c;
+  --border-subtle:   #222222;
+  --border-faint:    #1c1c1c;
+  --border-elevated: #3a3a3a;
+
+  --text-primary:   #e2e2e2;
+  --text-secondary: #909090;
+  --text-tertiary:  #686868;
+  --text-muted:     #484848;
+
+  --btn-bg:    #e8e8e8;
+  --btn-text:  #0d0d0d;
+  --btn-hover: #d0d0d0;
+
+  --progress-track: #1e1e1e;
+  --progress-fill:  #484848;
+
+  --cell-past:          #3a3a3a;
+  --cell-past-border:   #4a4a4a;
+  --cell-future:        #1a1a1a;
+  --cell-future-border: #252525;
+  --cell-current:       #ffffff;
+  --cell-glow-near:     rgba(255, 255, 255, 0.9);
+  --cell-glow-mid:      rgba(255, 255, 255, 0.45);
+  --cell-glow-far:      rgba(255, 255, 255, 0.15);
+  --cell-label-current: #000000;
+  --cell-label-past:    #777777;
+  --cell-label-future:  #2d2d2d;
+
+  --scrollbar:      #2e2e2e;
+  --milestone-dot:  #f59e0b;
+}
+
+html.light {
+  color-scheme: light;
+
+  --bg-app:     #f2f2f2;
+  --bg-surface: #ffffff;
+  --bg-input:   #ebebeb;
+  --bg-hover:   #f5f5f5;
+  --bg-toggle:  #e4e4e4;
+  --bg-active:  #d4d4d4;
+
+  --border:          #d0d0d0;
+  --border-subtle:   #dcdcdc;
+  --border-faint:    #e8e8e8;
+  --border-elevated: #b8b8b8;
+
+  --text-primary:   #111111;
+  --text-secondary: #555555;
+  --text-tertiary:  #777777;
+  --text-muted:     #aaaaaa;
+
+  --btn-bg:    #111111;
+  --btn-text:  #ffffff;
+  --btn-hover: #2a2a2a;
+
+  --progress-track: #e0e0e0;
+  --progress-fill:  #777777;
+
+  --cell-past:          #3a3a3a;
+  --cell-past-border:   #2e2e2e;
+  --cell-future:        #e0e0e0;
+  --cell-future-border: #cccccc;
+  --cell-current:       #111111;
+  --cell-glow-near:     rgba(0, 0, 0, 0.5);
+  --cell-glow-mid:      rgba(0, 0, 0, 0.22);
+  --cell-glow-far:      rgba(0, 0, 0, 0.08);
+  --cell-label-current: #ffffff;
+  --cell-label-past:    #888888;
+  --cell-label-future:  #c0c0c0;
+
+  --scrollbar:      #cccccc;
+  --milestone-dot:  #d97706;
+}
+
+/* ── Animations ─────────────────────────────────────── */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 4px rgba(255, 255, 255, 0.9), 0 0 10px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 4px var(--cell-glow-near), 0 0 10px var(--cell-glow-mid);
   }
   50% {
-    box-shadow: 0 0 8px rgba(255, 255, 255, 1), 0 0 22px rgba(255, 255, 255, 0.7), 0 0 40px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 8px var(--cell-glow-near), 0 0 22px var(--cell-glow-mid), 0 0 40px var(--cell-glow-far);
   }
 }
 
@@ -15,8 +103,8 @@
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-3px); }
-  75% { transform: translateX(3px); }
+  25%       { transform: translateX(-3px); }
+  75%       { transform: translateX(3px); }
 }
 
 .cell-shake {
@@ -25,7 +113,7 @@
 
 @keyframes slide-up {
   from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(0);    opacity: 1; }
 }
 
 .slide-up {
@@ -34,13 +122,14 @@
 
 @keyframes fade-in {
   from { opacity: 0; transform: scale(0.97); }
-  to { opacity: 1; transform: scale(1); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .fade-in {
   animation: fade-in 0.2s ease-out;
 }
 
+/* ── Base ───────────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
@@ -51,13 +140,17 @@ html, body, #root {
 }
 
 body {
-  background: #080808;
-  color: #e5e5e5;
+  background: var(--bg-app);
+  color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-::-webkit-scrollbar { width: 3px; height: 3px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+::-webkit-scrollbar        { width: 3px; height: 3px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--scrollbar); border-radius: 2px; }
+
+input[type="range"] {
+  accent-color: var(--btn-bg);
+}

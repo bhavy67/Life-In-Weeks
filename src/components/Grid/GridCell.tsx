@@ -25,25 +25,23 @@ const GridCell = React.memo(
     const isPast = status === 'past';
 
     const handleClick = () => {
-      if (isFuture) {
-        // shake handled by parent via CSS class
-        return;
-      }
+      if (isFuture) return;
       onClick(index);
     };
 
     const style: React.CSSProperties = {};
     if (isCurrent) {
-      style.backgroundColor = '#ffffff';
+      style.backgroundColor = 'var(--cell-current)';
+      style.borderColor = 'var(--cell-current)';
     } else if (isPast && eraColor) {
       style.backgroundColor = eraColor + '55';
       style.borderColor = eraColor + '33';
     } else if (isPast) {
-      style.backgroundColor = '#2a2a2a';
-      style.borderColor = '#383838';
+      style.backgroundColor = 'var(--cell-past)';
+      style.borderColor = 'var(--cell-past-border)';
     } else {
-      style.backgroundColor = '#141414';
-      style.borderColor = '#222222';
+      style.backgroundColor = 'var(--cell-future)';
+      style.borderColor = 'var(--cell-future-border)';
     }
 
     return (
@@ -51,7 +49,7 @@ const GridCell = React.memo(
         className={[
           'relative flex-shrink-0 border rounded-[1.5px] transition-[filter] duration-100',
           SIZE[viewMode],
-          isCurrent ? 'cell-current border-white cursor-pointer' : '',
+          isCurrent ? 'cell-current cursor-pointer' : '',
           isPast ? 'cursor-pointer hover:brightness-150' : '',
           isFuture ? 'cursor-default' : '',
           viewMode === 'years' ? 'flex items-center justify-center rounded-md' : '',
@@ -66,7 +64,13 @@ const GridCell = React.memo(
         {label && (
           <span
             className="text-[10px] sm:text-xs font-mono select-none"
-            style={{ color: isFuture ? '#2a2a2a' : isCurrent ? '#000' : '#666' }}
+            style={{
+              color: isFuture
+                ? 'var(--cell-label-future)'
+                : isCurrent
+                  ? 'var(--cell-label-current)'
+                  : 'var(--cell-label-past)',
+            }}
           >
             {label}
           </span>
@@ -76,10 +80,10 @@ const GridCell = React.memo(
             className="absolute rounded-full"
             style={
               viewMode === 'weeks'
-                ? { bottom: 0, right: 0, width: 3, height: 3, background: '#facc15' }
+                ? { bottom: 0, right: 0, width: 3, height: 3, background: 'var(--milestone-dot)' }
                 : viewMode === 'months'
-                  ? { bottom: 2, right: 2, width: 4, height: 4, background: '#facc15' }
-                  : { bottom: 4, right: 4, width: 5, height: 5, background: '#facc15' }
+                  ? { bottom: 2, right: 2, width: 4, height: 4, background: 'var(--milestone-dot)' }
+                  : { bottom: 4, right: 4, width: 5, height: 5, background: 'var(--milestone-dot)' }
             }
           />
         )}
