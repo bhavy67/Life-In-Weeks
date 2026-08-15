@@ -91,17 +91,6 @@ src/
 
 ---
 
-## Roadmap
-
-- [x] PWA — installable, works offline
-- [x] Light / dark mode
-- [x] Phone wallpaper export
-- [ ] Import / export data as JSON
-- [ ] Shareable read-only links
-- [ ] Custom accent colors
-
----
-
 ## License
 
 Personal project — not licensed for redistribution.
