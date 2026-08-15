@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import type { Era, Milestone, ViewMode } from '../../types';
 import GridCell from './GridCell';
 import { ageAtWeek, getWeekDateRange, getMonthLabel } from '../../utils/dateUtils';
@@ -24,6 +24,7 @@ interface Props {
   milestoneYearSet: Set<number>;
   milestoneMap: Map<number, Milestone>;
   onCellClick: (weekIndex: number) => void;
+  animateIn?: boolean;
 }
 
 function toWeekIndex(viewMode: ViewMode, cellIndex: number): number {
@@ -51,9 +52,17 @@ export default function LifeGrid({
   milestoneYearSet,
   milestoneMap,
   onCellClick,
+  animateIn = true,
 }: Props) {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [sweeping, setSweeping] = useState(animateIn);
+
+  useEffect(() => {
+    if (!animateIn) return;
+    const t = setTimeout(() => setSweeping(false), 2100);
+    return () => clearTimeout(t);
+  }, [animateIn]);
 
   const currentIndex =
     viewMode === 'weeks'
@@ -186,27 +195,44 @@ export default function LifeGrid({
     return '';
   };
 
+  const decadeSpacing = viewMode === 'months' ? '6px' : '4px';
+
   return (
     <div className="relative">
       <div className="overflow-x-auto pb-2">
-        <div className="w-full">
+        <div className={`w-full ${sweeping ? 'grid-sweep' : ''}`}>
           {Array.from({ length: rows }, (_, row) => (
-            <div key={row} className={`flex items-center ${rowGap}`}>
-              {/* Row label */}
-              <div className="w-7 flex-shrink-0 text-right pr-2 text-[10px] text-[var(--text-muted)] font-mono select-none">
-                {rowLabel(row)}
+            <Fragment key={row}>
+              {/* Decade marker — thin rule before every 10th row */}
+              {row > 0 && row % 10 === 0 && viewMode !== 'years' && (
+                <div
+                  className="flex items-center"
+                  style={{ margin: `${decadeSpacing} 0` }}
+                >
+                  <div className="w-7 flex-shrink-0" />
+                  <div
+                    className="flex-1 h-px bg-[var(--border-subtle)]"
+                    style={{ opacity: 0.6 }}
+                  />
+                </div>
+              )}
+              <div className={`flex items-center ${rowGap}`}>
+                {/* Row label */}
+                <div className="w-7 flex-shrink-0 text-right pr-2 text-[10px] text-[var(--text-muted)] font-mono select-none">
+                  {rowLabel(row)}
+                </div>
+                {/* Cells */}
+                <div
+                  className="flex-1 grid"
+                  style={{
+                    gridTemplateColumns: `repeat(${cols}, ${cellTemplate})`,
+                    gap: cellGap,
+                  }}
+                >
+                  {renderRow(row)}
+                </div>
               </div>
-              {/* Cells */}
-              <div
-                className="flex-1 grid"
-                style={{
-                  gridTemplateColumns: `repeat(${cols}, ${cellTemplate})`,
-                  gap: cellGap,
-                }}
-              >
-                {renderRow(row)}
-              </div>
-            </div>
+            </Fragment>
           ))}
         </div>
       </div>

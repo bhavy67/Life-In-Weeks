@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Settings, Download, BarChart2, Sun, Moon } from 'lucide-react';
+import { Settings, Download, BarChart2, Sun, Moon, Share2, Check } from 'lucide-react';
 import type { Era, Milestone, UserConfig, ViewMode } from './types';
 import { KEYS } from './utils/storageKeys';
 import { useStorage } from './hooks/useStorage';
@@ -12,6 +12,9 @@ import EraModal from './components/EraModal';
 import SettingsModal from './components/SettingsModal';
 import WallpaperModal from './components/WallpaperModal';
 import QuoteFooter from './components/QuoteFooter';
+import CurrentWeekModal from './components/CurrentWeekModal';
+import SharedView from './components/SharedView';
+import { encodeShareUrl, decodeShareParam, getShareParam } from './utils/shareUtils';
 
 const VIEW_MODES: { id: ViewMode; label: string }[] = [
   { id: 'weeks', label: 'Weeks' },
@@ -20,6 +23,11 @@ const VIEW_MODES: { id: ViewMode; label: string }[] = [
 ];
 
 const FALLBACK_USER: UserConfig = { name: '', birthday: '2000-01-01', lifespan: 80 };
+
+const sharedState = (() => {
+  const param = getShareParam();
+  return param ? decodeShareParam(param) : null;
+})();
 
 export default function App() {
   const [user, setUser] = useStorage<UserConfig | null>(KEYS.user, null);
@@ -36,6 +44,8 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showWallpaper, setShowWallpaper] = useState(false);
+  const [showCurrentWeek, setShowCurrentWeek] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light');
@@ -47,9 +57,29 @@ export default function App() {
 
   // Always call hooks unconditionally — use fallback so hooks order is stable
   const grid = useLifeGrid(user ?? FALLBACK_USER, milestones, eras);
-  const handleCellClick = useCallback((weekIndex: number) => {
-    setSelectedWeek(weekIndex);
-  }, []);
+  const handleCellClick = useCallback(
+    (weekIndex: number) => {
+      if (weekIndex === grid.currentWeekIndex) {
+        setShowCurrentWeek(true);
+      } else {
+        setSelectedWeek(weekIndex);
+      }
+    },
+    [grid.currentWeekIndex],
+  );
+
+  const handleShare = useCallback(() => {
+    if (!user) return;
+    const url = encodeShareUrl({ birthday: user.birthday, lifespan: user.lifespan, milestones, eras });
+    navigator.clipboard.writeText(url).then(() => {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    });
+  }, [user, milestones, eras]);
+
+  if (sharedState) {
+    return <SharedView state={sharedState} />;
+  }
 
   if (!user) {
     return <Onboarding onComplete={setUser} />;
@@ -138,6 +168,17 @@ export default function App() {
             <BarChart2 size={16} />
           </button>
           <button
+            onClick={handleShare}
+            className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            title="Copy share link"
+          >
+            {shareCopied ? (
+              <Check size={16} className="text-green-500" />
+            ) : (
+              <Share2 size={16} />
+            )}
+          </button>
+          <button
             onClick={() => setShowWallpaper(true)}
             className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Save as wallpaper"
@@ -180,7 +221,7 @@ export default function App() {
             onCellClick={handleCellClick}
           />
           <p className="mt-6 text-[var(--text-muted)] text-xs select-none">
-            Click any past week to pin a memory.
+            Click any past week to pin a memory. Click the current week for a summary.
           </p>
         </main>
 
@@ -227,6 +268,24 @@ export default function App() {
             />
           </div>
         </div>
+      )}
+
+      {/* Current week detail */}
+      {showCurrentWeek && (
+        <CurrentWeekModal
+          birthday={user.birthday}
+          currentWeekIndex={grid.currentWeekIndex}
+          currentEra={grid.eraMap.get(grid.currentWeekIndex)}
+          currentMilestone={milestones.find((m) => m.weekIndex === grid.currentWeekIndex)}
+          pctLived={grid.pctLived}
+          weeksLeft={grid.weeksLeft}
+          preciseAge={grid.preciseAge}
+          onEditMilestone={() => {
+            setShowCurrentWeek(false);
+            setSelectedWeek(grid.currentWeekIndex);
+          }}
+          onClose={() => setShowCurrentWeek(false)}
+        />
       )}
 
       {/* Milestone modal */}
