@@ -82,10 +82,10 @@ html.light {
   --progress-track: #e0e0e0;
   --progress-fill:  #777777;
 
-  --cell-past:          #3a3a3a;
-  --cell-past-border:   #2e2e2e;
-  --cell-future:        #e0e0e0;
-  --cell-future-border: #cccccc;
+  --cell-past:          #c4c4c4;
+  --cell-past-border:   #adadad;
+  --cell-future:        #e8e8e8;
+  --cell-future-border: #d8d8d8;
   --cell-current:       #111111;
   --cell-glow-near:     rgba(0, 0, 0, 0.5);
   --cell-glow-mid:      rgba(0, 0, 0, 0.22);
