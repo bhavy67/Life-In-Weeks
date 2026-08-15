@@ -141,6 +141,8 @@ export default function LifeGrid({
     [viewMode, onCellClick],
   );
 
+  const allMilestones = [...milestoneMap.values()].flat();
+
   const renderRow = (row: number) => {
     const cells = [];
     for (let col = 0; col < cols; col++) {
@@ -171,6 +173,14 @@ export default function LifeGrid({
 
       const label = viewMode === 'years' ? String(cellIndex) : undefined;
 
+      const milestoneId = milestoneCount > 0
+        ? viewMode === 'weeks'
+          ? milestoneMap.get(cellIndex)?.[0]?.id
+          : viewMode === 'months'
+          ? allMilestones.find(m => getAbsoluteMonth(m.weekIndex, birthday, m.date) === cellIndex)?.id
+          : allMilestones.find(m => getAbsoluteYear(m.weekIndex, birthday, m.date) === cellIndex)?.id
+        : undefined;
+
       cells.push(
         <GridCell
           key={cellIndex}
@@ -178,6 +188,7 @@ export default function LifeGrid({
           status={status}
           eraColor={era?.color}
           milestoneCount={milestoneCount}
+          milestoneId={milestoneId}
           viewMode={viewMode}
           label={label}
           onClick={handleClick}

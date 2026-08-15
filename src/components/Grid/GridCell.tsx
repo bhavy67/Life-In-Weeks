@@ -6,10 +6,23 @@ interface GridCellProps {
   status: CellStatus;
   eraColor?: string;
   milestoneCount: number;
+  milestoneId?: string;
   viewMode: ViewMode;
   label?: string;
   onClick: (index: number) => void;
   onHover: (index: number, el: HTMLElement | null) => void;
+}
+
+const MEMORY_COLORS = [
+  '#f59e0b', '#818cf8', '#34d399', '#f87171',
+  '#60a5fa', '#a78bfa', '#fb923c', '#e879f9',
+  '#2dd4bf', '#a3e635',
+];
+
+function memoryColor(id: string): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return MEMORY_COLORS[h % MEMORY_COLORS.length];
 }
 
 const ROUNDED: Record<ViewMode, string> = {
@@ -19,7 +32,7 @@ const ROUNDED: Record<ViewMode, string> = {
 };
 
 const GridCell = React.memo(
-  ({ index, status, eraColor, milestoneCount, viewMode, label, onClick, onHover }: GridCellProps) => {
+  ({ index, status, eraColor, milestoneCount, milestoneId, viewMode, label, onClick, onHover }: GridCellProps) => {
     const isFuture = status === 'future';
     const isCurrent = status === 'current';
 
@@ -88,12 +101,32 @@ const GridCell = React.memo(
             {label}
           </span>
         )}
-        {viewMode === 'weeks' && milestoneCount > 0 && !isFuture && (
-          <div
-            className="absolute rounded-full"
-            style={{ bottom: '5%', right: '5%', width: '30%', height: '30%', background: 'var(--milestone-dot)' }}
-          />
-        )}
+        {milestoneCount > 0 && !isFuture && (() => {
+          // dot size and positions as % of cell width (works for all view sizes)
+          const sz   = viewMode === 'weeks' ? 26 : viewMode === 'months' ? 11 : 8;
+          const base = 5;
+          const gap  = viewMode === 'weeks' ? 4  : viewMode === 'months' ? 3  : 2;
+          const leftRight = `${base + sz + gap}%`;
+          // 1 memory: unique colour per memory; 2+: use palette defaults
+          const dot1Color = milestoneCount === 1 && milestoneId
+            ? memoryColor(milestoneId)
+            : 'var(--milestone-dot)';
+          // 2 memories → different colours; 3+ → same colour (signals "many")
+          const dot2Color = milestoneCount === 2 ? 'var(--milestone-dot-2)' : 'var(--milestone-dot)';
+          const shared: React.CSSProperties = {
+            position: 'absolute', bottom: `${base}%`,
+            width: `${sz}%`, height: `${sz}%`, borderRadius: '50%',
+          };
+          if (milestoneCount === 1) {
+            return <div style={{ ...shared, right: `${base}%`, background: dot1Color }} />;
+          }
+          return (
+            <>
+              <div style={{ ...shared, right: leftRight,    background: dot1Color }} />
+              <div style={{ ...shared, right: `${base}%`,  background: dot2Color }} />
+            </>
+          );
+        })()}
       </div>
     );
   },

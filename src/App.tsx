@@ -148,7 +148,7 @@ export default function App() {
               key={id}
               onClick={() => setViewMode(id)}
               className={[
-                'px-2.5 sm:px-3 py-1 rounded-md text-xs transition-all duration-150',
+                'px-2.5 sm:px-3 py-1 rounded-md text-sm transition-all duration-150',
                 viewMode === id
                   ? 'bg-[var(--bg-active)] text-[var(--text-primary)]'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-tertiary)]',
