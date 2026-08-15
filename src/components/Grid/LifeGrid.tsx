@@ -60,7 +60,7 @@ export default function LifeGrid({
 
   useEffect(() => {
     if (!animateIn) return;
-    const t = setTimeout(() => setSweeping(false), 2100);
+    const t = setTimeout(() => setSweeping(false), 3700);
     return () => clearTimeout(t);
   }, [animateIn]);
 
