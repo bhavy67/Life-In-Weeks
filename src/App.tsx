@@ -45,6 +45,7 @@ export default function App() {
     window.innerWidth < 640 ? 'years' : 'weeks',
   );
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
+  const [selectedContext, setSelectedContext] = useState<{ rawCellIndex: number; viewMode: ViewMode } | null>(null);
   const [showEraModal, setShowEraModal] = useState(false);
   const [editingEra, setEditingEra] = useState<Era | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -64,14 +65,15 @@ export default function App() {
   // Always call hooks unconditionally — use fallback so hooks order is stable
   const grid = useLifeGrid(user ?? FALLBACK_USER, milestones, eras);
   const handleCellClick = useCallback(
-    (weekIndex: number) => {
+    (weekIndex: number, rawCellIndex: number) => {
       if (weekIndex === grid.currentWeekIndex) {
         setShowCurrentWeek(true);
       } else {
         setSelectedWeek(weekIndex);
+        setSelectedContext({ rawCellIndex, viewMode: viewMode as ViewMode });
       }
     },
-    [grid.currentWeekIndex],
+    [grid.currentWeekIndex, viewMode],
   );
 
   const handleShare = useCallback(() => {
@@ -205,7 +207,7 @@ export default function App() {
             <MemoriesView
               milestones={milestones}
               birthday={user.birthday}
-              onSelectWeek={(w) => setSelectedWeek(w)}
+              onSelectWeek={(w) => { setSelectedWeek(w); setSelectedContext({ rawCellIndex: w, viewMode: 'weeks' }); }}
             />
           ) : (
             <>
@@ -288,6 +290,7 @@ export default function App() {
           onViewMemories={() => {
             setShowCurrentWeek(false);
             setSelectedWeek(grid.currentWeekIndex);
+            setSelectedContext({ rawCellIndex: grid.currentWeekIndex, viewMode: 'weeks' });
           }}
           onClose={() => setShowCurrentWeek(false)}
         />
@@ -299,10 +302,11 @@ export default function App() {
           weekIndex={selectedWeek}
           birthday={user.birthday}
           memories={selectedMemories}
+          pickerContext={selectedContext ?? { rawCellIndex: selectedWeek, viewMode: 'weeks' }}
           onAdd={handleMilestoneAdd}
           onUpdate={handleMilestoneUpdate}
           onDelete={handleMilestoneDelete}
-          onClose={() => setSelectedWeek(null)}
+          onClose={() => { setSelectedWeek(null); setSelectedContext(null); }}
         />
       )}
 

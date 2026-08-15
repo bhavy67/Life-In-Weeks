@@ -23,7 +23,7 @@ interface Props {
   milestoneWeekCount: Map<number, number>;
   milestoneMonthCount: Map<number, number>;
   milestoneYearCount: Map<number, number>;
-  onCellClick: (weekIndex: number) => void;
+  onCellClick: (weekIndex: number, rawCellIndex: number) => void;
   animateIn?: boolean;
 }
 
@@ -134,8 +134,9 @@ export default function LifeGrid({
 
   const handleClick = useCallback(
     (cellIndex: number) => {
+      if (viewMode === 'years') return;
       const weekIdx = resolveClickWeekIndex(viewMode, cellIndex);
-      onCellClick(weekIdx);
+      onCellClick(weekIdx, cellIndex);
     },
     [viewMode, onCellClick],
   );

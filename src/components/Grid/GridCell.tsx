@@ -63,7 +63,7 @@ const GridCell = React.memo(
           'relative border transition-[filter] duration-100 w-full aspect-square',
           ROUNDED[viewMode],
           isCurrent ? 'cell-current cursor-pointer' : '',
-          status === 'past' ? 'cursor-pointer hover:brightness-150' : '',
+          status === 'past' && viewMode !== 'years' ? 'cursor-pointer hover:brightness-150' : '',
           isFuture ? 'cursor-default' : '',
           viewMode === 'years' ? 'flex items-center justify-center' : '',
         ]
