@@ -154,12 +154,11 @@ export function generateWallpaper({
     gridY + gridH + 65,
   );
 
-  // ── Footer: branding ───────────────────────────────────
-  ctx.fillStyle = '#1c1c1c';
-  ctx.font = `300 18px ${FONT}`;
-  try { (ctx as unknown as Record<string, string>)['letterSpacing'] = '4px'; } catch {}
-  ctx.fillText('life in weeks', W / 2, H - 88);
-  try { (ctx as unknown as Record<string, string>)['letterSpacing'] = '0px'; } catch {}
+  // ── Footer: tagline ────────────────────────────────────
+  // Anchored 140px from the bottom — stays well within safe zones on all phones
+  ctx.fillStyle = '#2e2e2e';
+  ctx.font = `300 22px ${FONT}`;
+  ctx.fillText('The grid fills either way.', W / 2, H - 140);
 
   return canvas.toDataURL('image/png');
 }
