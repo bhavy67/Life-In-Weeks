@@ -1,7 +1,6 @@
 import type { Era } from '../types';
 
 export interface WallpaperOptions {
-  name: string;
   lifespan: number;
   currentWeekIndex: number;
   milestoneWeekSet: Set<number>;
@@ -32,7 +31,6 @@ function fillRoundRect(
 }
 
 export function generateWallpaper({
-  name,
   lifespan,
   currentWeekIndex,
   milestoneWeekSet,
@@ -75,24 +73,18 @@ export function generateWallpaper({
   // ── Header: "LIFE IN WEEKS" ────────────────────────────
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#282828';
+  ctx.fillStyle = '#2a2a2a';
   ctx.font = `300 24px ${FONT}`;
-  // Letter spacing via the newer Canvas API (graceful degradation if unsupported)
   try { (ctx as unknown as Record<string, string>)['letterSpacing'] = '8px'; } catch {}
-  ctx.fillText('LIFE IN WEEKS', W / 2, 168);
+  ctx.fillText('LIFE IN WEEKS', W / 2, 210);
   try { (ctx as unknown as Record<string, string>)['letterSpacing'] = '0px'; } catch {}
 
-  // ── Header: user name ──────────────────────────────────
-  ctx.fillStyle = '#d8d8d8';
-  ctx.font = `200 62px ${FONT}`;
-  ctx.fillText(name, W / 2, 272);
-
   // ── Header: stats line ─────────────────────────────────
-  ctx.fillStyle = '#424242';
-  ctx.font = `300 22px ${FONT}`;
+  ctx.fillStyle = '#484848';
+  ctx.font = `300 26px ${FONT}`;
   ctx.fillText(
     `${preciseAge.years} years old  ·  ${pctLived.toFixed(1)}% complete`,
-    W / 2, 340,
+    W / 2, 330,
   );
 
   // Thin separator

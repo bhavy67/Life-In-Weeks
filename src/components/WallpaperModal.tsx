@@ -8,6 +8,7 @@ interface Props extends WallpaperOptions {
 }
 
 export default function WallpaperModal({ userName, onClose, ...opts }: Props) {
+  // userName is used only for the download filename, not rendered in the wallpaper
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
