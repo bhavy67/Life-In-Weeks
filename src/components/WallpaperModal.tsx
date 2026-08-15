@@ -5,9 +5,10 @@ import { generateWallpaper, type WallpaperOptions } from '../utils/generateWallp
 interface Props extends WallpaperOptions {
   userName: string;
   onClose: () => void;
+  onDownload?: () => void;
 }
 
-export default function WallpaperModal({ userName, onClose, ...opts }: Props) {
+export default function WallpaperModal({ userName, onClose, onDownload, ...opts }: Props) {
   // userName is used only for the download filename, not rendered in the wallpaper
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -27,6 +28,7 @@ export default function WallpaperModal({ userName, onClose, ...opts }: Props) {
     a.download = `life-in-weeks-${userName.replace(/\s+/g, '-').toLowerCase()}.png`;
     a.href = imageUrl;
     a.click();
+    onDownload?.();
   };
 
   return (

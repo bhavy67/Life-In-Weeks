@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Settings, Download, BarChart2, Sun, Moon, Share2, Check } from 'lucide-react';
+import { Settings, Download, BarChart2, Sun, Moon, Share2 } from 'lucide-react';
 import type { Era, Milestone, UserConfig, ViewMode } from './types';
 import { KEYS } from './utils/storageKeys';
 import { useStorage } from './hooks/useStorage';
@@ -14,7 +14,9 @@ import WallpaperModal from './components/WallpaperModal';
 import QuoteFooter from './components/QuoteFooter';
 import CurrentWeekModal from './components/CurrentWeekModal';
 import SharedView from './components/SharedView';
+import Toast from './components/Toast';
 import { encodeShareUrl, decodeShareParam, getShareParam } from './utils/shareUtils';
+import { useToast } from './hooks/useToast';
 
 const VIEW_MODES: { id: ViewMode; label: string }[] = [
   { id: 'weeks', label: 'Weeks' },
@@ -45,7 +47,7 @@ export default function App() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showWallpaper, setShowWallpaper] = useState(false);
   const [showCurrentWeek, setShowCurrentWeek] = useState(false);
-  const [shareCopied, setShareCopied] = useState(false);
+  const { toast, showToast } = useToast();
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light');
@@ -71,11 +73,8 @@ export default function App() {
   const handleShare = useCallback(() => {
     if (!user) return;
     const url = encodeShareUrl({ birthday: user.birthday, lifespan: user.lifespan, milestones, eras });
-    navigator.clipboard.writeText(url).then(() => {
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 2000);
-    });
-  }, [user, milestones, eras]);
+    navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard'));
+  }, [user, milestones, eras, showToast]);
 
   if (sharedState) {
     return <SharedView state={sharedState} />;
@@ -172,11 +171,7 @@ export default function App() {
             className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Copy share link"
           >
-            {shareCopied ? (
-              <Check size={16} className="text-green-500" />
-            ) : (
-              <Share2 size={16} />
-            )}
+            <Share2 size={16} />
           </button>
           <button
             onClick={() => setShowWallpaper(true)}
@@ -322,9 +317,13 @@ export default function App() {
           pctLived={grid.pctLived}
           preciseAge={grid.preciseAge}
           weeksLeft={grid.weeksLeft}
+          onDownload={() => showToast('Wallpaper saved')}
           onClose={() => setShowWallpaper(false)}
         />
       )}
+
+      {/* Toast */}
+      {toast && <Toast key={toast.key} message={toast.message} />}
 
       {/* Settings modal */}
       {showSettings && (

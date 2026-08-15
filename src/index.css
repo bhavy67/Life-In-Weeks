@@ -155,6 +155,17 @@ input[type="range"] {
   accent-color: var(--btn-bg);
 }
 
+@keyframes toast-show {
+  0%   { opacity: 0; transform: translateY(6px); }
+  12%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-3px); }
+}
+
+.toast-show {
+  animation: toast-show 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
 @keyframes sweep-reveal {
   from { clip-path: inset(0 100% 0 0); opacity: 0.5; }
   15%  { opacity: 1; }
