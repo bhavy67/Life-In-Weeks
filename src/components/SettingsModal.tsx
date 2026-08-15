@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { UserConfig } from '../types';
-import { X } from 'lucide-react';
+import { X, ShieldCheck } from 'lucide-react';
 
 interface Props {
   user: UserConfig;
@@ -90,6 +90,14 @@ export default function SettingsModal({ user, onSave, onReset, onClose }: Props)
           >
             Save
           </button>
+        </div>
+
+        {/* Privacy note */}
+        <div className="mt-5 pt-4 border-t border-[var(--border-faint)] flex gap-2">
+          <ShieldCheck size={13} className="text-[var(--text-muted)] flex-shrink-0 mt-0.5" />
+          <p className="text-[var(--text-muted)] text-[11px] leading-relaxed">
+            Everything stays on your device. No accounts, no servers, no tracking — your data never leaves your browser.
+          </p>
         </div>
 
         {/* Danger zone */}
