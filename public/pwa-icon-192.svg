@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="40" fill="#0d0d0d"/>
+  <!-- Row 0: all past -->
+  <rect x="28" y="28" width="28" height="28" rx="4" fill="#4e4e4e"/>
+  <rect x="64" y="28" width="28" height="28" rx="4" fill="#4e4e4e"/>
+  <rect x="100" y="28" width="28" height="28" rx="4" fill="#4e4e4e"/>
+  <rect x="136" y="28" width="28" height="28" rx="4" fill="#4e4e4e"/>
+  <!-- Row 1: all past -->
+  <rect x="28" y="64" width="28" height="28" rx="4" fill="#4e4e4e"/>
+  <rect x="64" y="64" width="28" height="28" rx="4" fill="#4e4e4e"/>
+  <rect x="100" y="64" width="28" height="28" rx="4" fill="#4e4e4e"/>
+  <rect x="136" y="64" width="28" height="28" rx="4" fill="#4e4e4e"/>
+  <!-- Row 2: 1 past · current (white) · 2 future -->
+  <rect x="28" y="100" width="28" height="28" rx="4" fill="#4e4e4e"/>
+  <rect x="64" y="100" width="28" height="28" rx="4" fill="#ffffff"/>
+  <rect x="100" y="100" width="28" height="28" rx="4" fill="#252525"/>
+  <rect x="136" y="100" width="28" height="28" rx="4" fill="#252525"/>
+  <!-- Row 3: all future -->
+  <rect x="28" y="136" width="28" height="28" rx="4" fill="#1e1e1e"/>
+  <rect x="64" y="136" width="28" height="28" rx="4" fill="#1e1e1e"/>
+  <rect x="100" y="136" width="28" height="28" rx="4" fill="#1e1e1e"/>
+  <rect x="136" y="136" width="28" height="28" rx="4" fill="#1e1e1e"/>
+</svg>
