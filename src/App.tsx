@@ -10,6 +10,7 @@ import Sidebar from './components/Sidebar';
 import MilestoneModal from './components/MilestoneModal';
 import EraModal from './components/EraModal';
 import SettingsModal from './components/SettingsModal';
+import QuoteFooter from './components/QuoteFooter';
 
 const VIEW_MODES: { id: ViewMode; label: string }[] = [
   { id: 'weeks', label: 'Weeks' },
@@ -211,6 +212,9 @@ export default function App() {
           />
         </aside>
       </div>
+
+      {/* Quote footer */}
+      <QuoteFooter />
 
       {/* Mobile sidebar bottom sheet */}
       {showMobileSidebar && (
