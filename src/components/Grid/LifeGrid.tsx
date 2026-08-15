@@ -24,7 +24,6 @@ interface Props {
   milestoneYearSet: Set<number>;
   milestoneMap: Map<number, Milestone>;
   onCellClick: (weekIndex: number) => void;
-  gridRef: React.RefObject<HTMLDivElement | null>;
 }
 
 function toWeekIndex(viewMode: ViewMode, cellIndex: number): number {
@@ -52,7 +51,6 @@ export default function LifeGrid({
   milestoneYearSet,
   milestoneMap,
   onCellClick,
-  gridRef,
 }: Props) {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -184,7 +182,7 @@ export default function LifeGrid({
   };
 
   return (
-    <div className="relative" ref={gridRef}>
+    <div className="relative">
       <div className={viewMode === 'weeks' ? 'overflow-x-auto pb-2' : ''}>
         <div className="inline-block min-w-0">
           {Array.from({ length: rows }, (_, row) => (

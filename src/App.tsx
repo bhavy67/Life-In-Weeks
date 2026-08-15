@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Settings, Download, BarChart2, Sun, Moon } from 'lucide-react';
 import type { Era, Milestone, UserConfig, ViewMode } from './types';
 import { KEYS } from './utils/storageKeys';
@@ -10,6 +10,7 @@ import Sidebar from './components/Sidebar';
 import MilestoneModal from './components/MilestoneModal';
 import EraModal from './components/EraModal';
 import SettingsModal from './components/SettingsModal';
+import WallpaperModal from './components/WallpaperModal';
 import QuoteFooter from './components/QuoteFooter';
 
 const VIEW_MODES: { id: ViewMode; label: string }[] = [
@@ -34,8 +35,7 @@ export default function App() {
   const [editingEra, setEditingEra] = useState<Era | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
-
-  const gridRef = useRef<HTMLDivElement>(null);
+  const [showWallpaper, setShowWallpaper] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light');
@@ -89,18 +89,6 @@ export default function App() {
     setEditingEra(null);
   };
 
-  const handleExport = async () => {
-    const { default: html2canvas } = await import('html2canvas');
-    const el = gridRef.current;
-    if (!el) return;
-    const bgColor = theme === 'light' ? '#f2f2f2' : '#0d0d0d';
-    const canvas = await html2canvas(el, { backgroundColor: bgColor, scale: 2 });
-    const link = document.createElement('a');
-    link.download = `life-in-weeks-${user.name.replace(/\s+/g, '-').toLowerCase()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  };
-
   const handleReset = () => {
     localStorage.clear();
     window.location.reload();
@@ -150,9 +138,9 @@ export default function App() {
             <BarChart2 size={16} />
           </button>
           <button
-            onClick={handleExport}
+            onClick={() => setShowWallpaper(true)}
             className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
-            title="Export PNG"
+            title="Save as wallpaper"
           >
             <Download size={16} />
           </button>
@@ -190,7 +178,6 @@ export default function App() {
             milestoneYearSet={grid.milestoneYearSet}
             milestoneMap={grid.milestoneMap}
             onCellClick={handleCellClick}
-            gridRef={gridRef}
           />
           <p className="mt-6 text-[var(--text-muted)] text-xs select-none">
             Click any past week to pin a memory.
@@ -262,6 +249,22 @@ export default function App() {
           onSave={handleEraSave}
           onDelete={editingEra ? () => handleEraDelete(editingEra.id) : undefined}
           onClose={() => { setShowEraModal(false); setEditingEra(null); }}
+        />
+      )}
+
+      {/* Wallpaper modal */}
+      {showWallpaper && (
+        <WallpaperModal
+          userName={user.name}
+          name={user.name}
+          lifespan={user.lifespan}
+          currentWeekIndex={grid.currentWeekIndex}
+          milestoneWeekSet={grid.milestoneWeekSet}
+          eraMap={grid.eraMap}
+          pctLived={grid.pctLived}
+          preciseAge={grid.preciseAge}
+          weeksLeft={grid.weeksLeft}
+          onClose={() => setShowWallpaper(false)}
         />
       )}
 
