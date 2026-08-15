@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import type { Era, Milestone, ViewMode } from '../../types';
 import GridCell from './GridCell';
-import { ageAtWeek, getWeekDateRange, getMonthLabel } from '../../utils/dateUtils';
+import { ageAtWeek, getWeekDateRange, getMonthLabel, getAbsoluteMonth, getAbsoluteYear } from '../../utils/dateUtils';
 
 interface TooltipData {
   x: number;
@@ -115,10 +115,10 @@ export default function LifeGrid({
           ? milestoneMap.get(cellIndex)?.[0]
           : viewMode === 'months'
             ? [...milestoneMap.values()].flat().find(
-                (m) => Math.floor((m.weekIndex * 12) / 52) === cellIndex,
+                (m) => getAbsoluteMonth(m.weekIndex, birthday, m.date) === cellIndex,
               )
             : [...milestoneMap.values()].flat().find(
-                (m) => Math.floor(m.weekIndex / 52) === cellIndex,
+                (m) => getAbsoluteYear(m.weekIndex, birthday, m.date) === cellIndex,
               );
 
       setTooltip({

@@ -3,7 +3,7 @@ import type { Era, Milestone } from '../types';
 interface SharePayload {
   b: string;
   l: number;
-  m: { w: number; t: string; e?: string; d?: string }[];
+  m: { w: number; t: string; e?: string; d?: string; a?: string }[];
   r: { n: string; c: string; s: number; e: number }[];
 }
 
@@ -36,6 +36,7 @@ export function encodeShareUrl(state: SharedState): string {
       t: m.title,
       ...(m.emoji && { e: m.emoji }),
       ...(m.description && { d: m.description }),
+      ...(m.date && { a: m.date }),
     })),
     r: state.eras.map((era) => ({
       n: era.name,
@@ -61,6 +62,7 @@ export function decodeShareParam(param: string): SharedState | null {
         title: m.t,
         emoji: m.e,
         description: m.d,
+        date: m.a,
       })),
       eras: p.r.map((r, i) => ({
         id: `s-era-${i}`,

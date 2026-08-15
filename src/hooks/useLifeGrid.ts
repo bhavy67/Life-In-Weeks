@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
-import { addWeeks, differenceInMonths } from 'date-fns';
 import type { UserConfig, Milestone, Era } from '../types';
 import {
   getWeekIndex,
   getMonthIndex,
   getYearIndex,
-  parseBirthday,
-  weekToYear,
+  getAbsoluteMonth,
+  getAbsoluteYear,
 } from '../utils/dateUtils';
 
 export function useLifeGrid(user: UserConfig, milestones: Milestone[], eras: Era[]) {
@@ -36,17 +35,15 @@ export function useLifeGrid(user: UserConfig, milestones: Milestone[], eras: Era
     const milestoneMonthCount = new Map<number, number>();
     const milestoneYearCount = new Map<number, number>();
 
-    const bd = parseBirthday(user.birthday);
     for (const m of milestones) {
       milestoneWeekSet.add(m.weekIndex);
       const arr = milestoneMap.get(m.weekIndex) ?? [];
       milestoneMap.set(m.weekIndex, [...arr, m]);
       milestoneWeekCount.set(m.weekIndex, (milestoneWeekCount.get(m.weekIndex) ?? 0) + 1);
-      const weekDate = addWeeks(bd, m.weekIndex);
-      const absMonth = differenceInMonths(weekDate, bd);
+      const absMonth = getAbsoluteMonth(m.weekIndex, user.birthday, m.date);
       milestoneMonthSet.add(absMonth);
       milestoneMonthCount.set(absMonth, (milestoneMonthCount.get(absMonth) ?? 0) + 1);
-      const yr = weekToYear(m.weekIndex);
+      const yr = getAbsoluteYear(m.weekIndex, user.birthday, m.date);
       milestoneYearSet.add(yr);
       milestoneYearCount.set(yr, (milestoneYearCount.get(yr) ?? 0) + 1);
     }

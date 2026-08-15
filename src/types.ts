@@ -10,6 +10,7 @@ export interface Milestone {
   title: string;
   description?: string;
   emoji?: string;
+  date?: string; // "YYYY-MM-DD" — optional specific day within the week
 }
 
 export interface Era {

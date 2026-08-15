@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import type { Milestone } from '../types';
 import { getWeekDateRange, ageAtWeek } from '../utils/dateUtils';
 
@@ -17,7 +18,13 @@ export default function MemoriesView({ milestones, birthday, onSelectWeek }: Pro
     );
   }
 
-  const sorted = [...milestones].sort((a, b) => a.weekIndex - b.weekIndex);
+  const sorted = [...milestones].sort((a, b) => {
+    if (a.weekIndex !== b.weekIndex) return a.weekIndex - b.weekIndex;
+    if (a.date && b.date) return a.date.localeCompare(b.date);
+    if (a.date) return -1;
+    if (b.date) return 1;
+    return 0;
+  });
 
   return (
     <div className="flex-1 overflow-auto p-4 sm:p-6">
@@ -36,7 +43,11 @@ export default function MemoriesView({ milestones, birthday, onSelectWeek }: Pro
             <div className="flex items-center gap-1.5 mt-2.5 pt-2.5 border-t border-[var(--border-faint)]">
               <span className="text-[11px] font-semibold tracking-wide text-[var(--text-secondary)]">Age {ageAtWeek(m.weekIndex)}</span>
               <span className="text-[var(--border-elevated)]">·</span>
-              <span className="text-[var(--text-muted)] text-[10px] font-mono">{getWeekDateRange(m.weekIndex, birthday)}</span>
+              <span className="text-[var(--text-muted)] text-[10px] font-mono">
+                {m.date
+                  ? format(new Date(m.date + 'T00:00:00'), 'MMM d, yyyy')
+                  : getWeekDateRange(m.weekIndex, birthday)}
+              </span>
             </div>
           </button>
         ))}

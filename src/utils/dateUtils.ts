@@ -4,6 +4,7 @@ import {
   differenceInYears,
   addWeeks,
   addMonths,
+  addDays,
   format,
 } from 'date-fns';
 
@@ -21,6 +22,11 @@ export function getMonthIndex(birthday: string): number {
 
 export function getYearIndex(birthday: string): number {
   return Math.max(0, differenceInYears(new Date(), parseBirthday(birthday)));
+}
+
+export function getWeekDays(weekIndex: number, birthday: string): Date[] {
+  const start = addWeeks(parseBirthday(birthday), weekIndex);
+  return Array.from({ length: 7 }, (_, i) => addDays(start, i));
 }
 
 export function getWeekDateRange(weekIndex: number, birthday: string): string {
@@ -47,6 +53,20 @@ export function weekToAbsoluteMonth(weekIndex: number): number {
 // Convert absolute week index → year index (0-based from birth)
 export function weekToYear(weekIndex: number): number {
   return Math.floor(weekIndex / 52);
+}
+
+// Real calendar month index from birth — respects specific date when available
+export function getAbsoluteMonth(weekIndex: number, birthday: string, date?: string): number {
+  const bd = parseBirthday(birthday);
+  const ref = date ? new Date(date + 'T00:00:00') : addWeeks(bd, weekIndex);
+  return differenceInMonths(ref, bd);
+}
+
+// Real calendar year index from birth — respects specific date when available
+export function getAbsoluteYear(weekIndex: number, birthday: string, date?: string): number {
+  const bd = parseBirthday(birthday);
+  const ref = date ? new Date(date + 'T00:00:00') : addWeeks(bd, weekIndex);
+  return differenceInYears(ref, bd);
 }
 
 // Age in years at a given week index

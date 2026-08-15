@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { format, isAfter, startOfDay } from 'date-fns';
 import type { Milestone } from '../types';
-import { getWeekDateRange, ageAtWeek } from '../utils/dateUtils';
+import { getWeekDateRange, getWeekDays, ageAtWeek } from '../utils/dateUtils';
 import { X, Trash2, ArrowLeft, Plus } from 'lucide-react';
 
 const EMOJIS = ['⭐', '🎉', '💔', '🏆', '✈️', '❤️', '🎓', '💼', '🏠', '👶', '🎂', '🌱', '💡', '🔥', '🌊'];
@@ -21,9 +22,18 @@ export default function MilestoneModal({ weekIndex, birthday, memories, onAdd, o
   const [emoji, setEmoji] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [date, setDate] = useState('');
 
   const weekStart = getWeekDateRange(weekIndex, birthday);
   const age = ageAtWeek(weekIndex);
+
+  const today = startOfDay(new Date());
+  const weekDays = getWeekDays(weekIndex, birthday).map(day => ({
+    isoDate: format(day, 'yyyy-MM-dd'),
+    dayLabel: format(day, 'EEEEEE'),
+    dayNum: format(day, 'd'),
+    disabled: isAfter(startOfDay(day), today),
+  }));
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -36,12 +46,19 @@ export default function MilestoneModal({ weekIndex, birthday, memories, onAdd, o
     setEmoji(memory?.emoji ?? '');
     setTitle(memory?.title ?? '');
     setDescription(memory?.description ?? '');
+    setDate(memory?.date ?? '');
     setMode('form');
   };
 
   const handleSave = () => {
     if (!title.trim()) return;
-    const data = { weekIndex, title: title.trim(), emoji: emoji || undefined, description: description.trim() || undefined };
+    const data: Omit<Milestone, 'id'> = {
+      weekIndex,
+      title: title.trim(),
+      emoji: emoji || undefined,
+      description: description.trim() || undefined,
+      date: date || undefined,
+    };
     if (editingId) {
       onUpdate(editingId, data);
     } else {
@@ -92,7 +109,14 @@ export default function MilestoneModal({ weekIndex, birthday, memories, onAdd, o
               {memories.map(m => (
                 <div key={m.id} className="flex items-center gap-3 bg-[var(--bg-input)] rounded-xl px-3 py-2.5">
                   <span className="text-lg flex-shrink-0 w-7 text-center">{m.emoji || '·'}</span>
-                  <span className="flex-1 text-[var(--text-primary)] text-sm truncate">{m.title}</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-[var(--text-primary)] text-sm truncate block">{m.title}</span>
+                    {m.date && (
+                      <span className="text-[var(--text-muted)] text-[10px] font-mono">
+                        {format(new Date(m.date + 'T00:00:00'), 'EEE, MMM d')}
+                      </span>
+                    )}
+                  </div>
                   <button
                     onClick={() => enterForm(m)}
                     className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors p-1 flex-shrink-0 text-xs"
@@ -120,6 +144,7 @@ export default function MilestoneModal({ weekIndex, birthday, memories, onAdd, o
         {/* Form mode */}
         {mode === 'form' && (
           <div className="mt-4">
+            {/* Emoji picker */}
             <div className="flex flex-wrap gap-2 mb-4">
               <button
                 onClick={() => setEmoji('')}
@@ -133,6 +158,47 @@ export default function MilestoneModal({ weekIndex, birthday, memories, onAdd, o
                 >{e}</button>
               ))}
             </div>
+
+            {/* Day picker */}
+            <div className="mb-4">
+              <div className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1.5">
+                Day <span className="normal-case opacity-60">· optional</span>
+              </div>
+              <div className="flex gap-1">
+                {/* Clear / no specific day */}
+                <button
+                  type="button"
+                  onClick={() => setDate('')}
+                  className={`px-2 py-1.5 rounded border text-xs transition-colors flex-shrink-0 ${
+                    date === ''
+                      ? 'border-[var(--border-elevated)] bg-[var(--bg-hover)] text-[var(--text-secondary)]'
+                      : 'border-[var(--border-faint)] text-[var(--text-muted)] hover:border-[var(--border)]'
+                  }`}
+                >—</button>
+                {/* Day buttons */}
+                {weekDays.map(({ isoDate, dayLabel, dayNum, disabled }) => (
+                  <button
+                    key={isoDate}
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => setDate(prev => prev === isoDate ? '' : isoDate)}
+                    className={[
+                      'flex-1 py-1.5 rounded border transition-colors flex flex-col items-center justify-center min-w-0',
+                      disabled
+                        ? 'border-[var(--border-faint)] text-[var(--text-muted)] opacity-30 cursor-not-allowed'
+                        : date === isoDate
+                        ? 'border-[var(--border-elevated)] bg-[var(--bg-hover)] text-[var(--text-primary)]'
+                        : 'border-[var(--border-faint)] text-[var(--text-muted)] hover:border-[var(--border)] hover:text-[var(--text-secondary)]',
+                    ].join(' ')}
+                  >
+                    <span className="text-[8px] uppercase tracking-wide leading-none">{dayLabel}</span>
+                    <span className="text-[11px] font-medium leading-tight mt-0.5">{dayNum}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Title */}
             <input
               type="text"
               value={title}
@@ -142,6 +208,8 @@ export default function MilestoneModal({ weekIndex, birthday, memories, onAdd, o
               maxLength={80}
               className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--border-elevated)] mb-3"
             />
+
+            {/* Description */}
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -150,6 +218,7 @@ export default function MilestoneModal({ weekIndex, birthday, memories, onAdd, o
               maxLength={300}
               className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--border-elevated)] resize-none"
             />
+
             <div className="flex gap-2 mt-4">
               {memories.length > 0 && (
                 <button onClick={goBack} className="flex-1 py-2 border border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] rounded-lg text-sm transition-colors">
