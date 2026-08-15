@@ -76,10 +76,10 @@ export default function SharedView({ state }: { state: SharedState }) {
           currentMonthIndex={grid.currentMonthIndex}
           currentYearIndex={grid.currentYearIndex}
           eraMap={grid.eraMap}
-          milestoneWeekSet={grid.milestoneWeekSet}
-          milestoneMonthSet={grid.milestoneMonthSet}
-          milestoneYearSet={grid.milestoneYearSet}
           milestoneMap={grid.milestoneMap}
+          milestoneWeekCount={new Map()}
+          milestoneMonthCount={new Map()}
+          milestoneYearCount={new Map()}
           onCellClick={() => {}}
           animateIn={false}
         />

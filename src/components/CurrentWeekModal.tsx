@@ -1,17 +1,17 @@
 import { differenceInDays, addWeeks, startOfDay } from 'date-fns';
-import { X, Pencil } from 'lucide-react';
-import type { Era, Milestone } from '../types';
+import { X } from 'lucide-react';
+import type { Era } from '../types';
 import { parseBirthday, getWeekDateRange } from '../utils/dateUtils';
 
 interface Props {
   birthday: string;
   currentWeekIndex: number;
   currentEra?: Era;
-  currentMilestone?: Milestone;
+  memoryCount: number;
   pctLived: number;
   weeksLeft: number;
   preciseAge: { years: number; months: number };
-  onEditMilestone: () => void;
+  onViewMemories: () => void;
   onClose: () => void;
 }
 
@@ -19,11 +19,11 @@ export default function CurrentWeekModal({
   birthday,
   currentWeekIndex,
   currentEra,
-  currentMilestone,
+  memoryCount,
   pctLived,
   weeksLeft,
   preciseAge,
-  onEditMilestone,
+  onViewMemories,
   onClose,
 }: Props) {
   const bd = parseBirthday(birthday);
@@ -109,34 +109,16 @@ export default function CurrentWeekModal({
         )}
 
         {/* Memory */}
-        {currentMilestone ? (
-          <div className="bg-[var(--bg-input)] rounded-xl p-4 flex items-start justify-between gap-3">
-            <div>
-              <div className="text-[var(--text-muted)] text-[10px] uppercase tracking-widest mb-1">
-                Memory
-              </div>
-              <div className="text-[var(--text-primary)] text-sm">
-                {currentMilestone.emoji && (
-                  <span className="mr-1">{currentMilestone.emoji}</span>
-                )}
-                {currentMilestone.title}
-              </div>
-              {currentMilestone.description && (
-                <div className="text-[var(--text-tertiary)] text-xs mt-0.5">
-                  {currentMilestone.description}
-                </div>
-              )}
-            </div>
-            <button
-              onClick={onEditMilestone}
-              className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors flex-shrink-0"
-            >
-              <Pencil size={13} />
-            </button>
-          </div>
+        {memoryCount > 0 ? (
+          <button
+            onClick={onViewMemories}
+            className="w-full py-3 rounded-xl bg-[var(--bg-input)] text-[var(--text-primary)] text-sm hover:brightness-110 transition-all text-left px-4"
+          >
+            View {memoryCount} memor{memoryCount === 1 ? 'y' : 'ies'} →
+          </button>
         ) : (
           <button
-            onClick={onEditMilestone}
+            onClick={onViewMemories}
             className="w-full py-3 rounded-xl border border-dashed border-[var(--border)] text-[var(--text-muted)] text-sm hover:text-[var(--text-secondary)] hover:border-[var(--border-elevated)] transition-colors"
           >
             + Pin a memory to this week

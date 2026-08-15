@@ -15,13 +15,17 @@ import QuoteFooter from './components/QuoteFooter';
 import CurrentWeekModal from './components/CurrentWeekModal';
 import SharedView from './components/SharedView';
 import Toast from './components/Toast';
+import MemoriesView from './components/MemoriesView';
 import { encodeShareUrl, decodeShareParam, getShareParam } from './utils/shareUtils';
 import { useToast } from './hooks/useToast';
 
-const VIEW_MODES: { id: ViewMode; label: string }[] = [
+type AppViewMode = 'weeks' | 'months' | 'years' | 'memories';
+
+const VIEW_MODES: { id: AppViewMode; label: string }[] = [
   { id: 'weeks', label: 'Weeks' },
   { id: 'months', label: 'Months' },
   { id: 'years', label: 'Years' },
+  { id: 'memories', label: 'Memories' },
 ];
 
 const FALLBACK_USER: UserConfig = { name: '', birthday: '2000-01-01', lifespan: 80 };
@@ -37,7 +41,7 @@ export default function App() {
   const [eras, setEras] = useStorage<Era[]>(KEYS.eras, []);
   const [theme, setTheme] = useStorage<'dark' | 'light'>(KEYS.theme, 'dark');
 
-  const [viewMode, setViewMode] = useState<ViewMode>(() =>
+  const [viewMode, setViewMode] = useState<AppViewMode>(() =>
     window.innerWidth < 640 ? 'years' : 'weeks',
   );
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
@@ -84,22 +88,21 @@ export default function App() {
     return <Onboarding onComplete={setUser} />;
   }
 
-  const handleMilestoneSave = (data: Omit<Milestone, 'id'>) => {
-    const existing = milestones.find((m) => m.weekIndex === data.weekIndex);
-    if (existing) {
-      setMilestones((prev) =>
-        prev.map((m) => (m.id === existing.id ? { ...m, ...data } : m)),
-      );
-    } else {
-      setMilestones((prev) => [
-        ...prev,
-        { id: crypto.randomUUID(), ...data },
-      ]);
-    }
+  const handleMilestoneAdd = (data: Omit<Milestone, 'id'>) => {
+    setMilestones((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), ...data },
+    ]);
   };
 
-  const handleMilestoneDelete = (weekIndex: number) => {
-    setMilestones((prev) => prev.filter((m) => m.weekIndex !== weekIndex));
+  const handleMilestoneUpdate = (id: string, data: Omit<Milestone, 'id'>) => {
+    setMilestones((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, ...data } : m)),
+    );
+  };
+
+  const handleMilestoneDelete = (id: string) => {
+    setMilestones((prev) => prev.filter((m) => m.id !== id));
   };
 
   const handleEraSave = (data: Omit<Era, 'id'>) => {
@@ -123,10 +126,7 @@ export default function App() {
     window.location.reload();
   };
 
-  const selectedMilestone =
-    selectedWeek !== null
-      ? milestones.find((m) => m.weekIndex === selectedWeek)
-      : undefined;
+  const selectedMemories = selectedWeek !== null ? milestones.filter(m => m.weekIndex === selectedWeek) : [];
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[var(--bg-app)]">
@@ -199,25 +199,35 @@ export default function App() {
 
       {/* Main */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Grid */}
+        {/* Grid or Memories */}
         <main className="flex-1 overflow-auto p-4 sm:p-6">
-          <LifeGrid
-            viewMode={viewMode}
-            lifespan={user.lifespan}
-            birthday={user.birthday}
-            currentWeekIndex={grid.currentWeekIndex}
-            currentMonthIndex={grid.currentMonthIndex}
-            currentYearIndex={grid.currentYearIndex}
-            eraMap={grid.eraMap}
-            milestoneWeekSet={grid.milestoneWeekSet}
-            milestoneMonthSet={grid.milestoneMonthSet}
-            milestoneYearSet={grid.milestoneYearSet}
-            milestoneMap={grid.milestoneMap}
-            onCellClick={handleCellClick}
-          />
-          <p className="mt-6 text-[var(--text-muted)] text-xs select-none">
-            Click any past week to pin a memory. Click the current week for a summary.
-          </p>
+          {viewMode === 'memories' ? (
+            <MemoriesView
+              milestones={milestones}
+              birthday={user.birthday}
+              onSelectWeek={(w) => setSelectedWeek(w)}
+            />
+          ) : (
+            <>
+              <LifeGrid
+                viewMode={viewMode as ViewMode}
+                lifespan={user.lifespan}
+                birthday={user.birthday}
+                currentWeekIndex={grid.currentWeekIndex}
+                currentMonthIndex={grid.currentMonthIndex}
+                currentYearIndex={grid.currentYearIndex}
+                eraMap={grid.eraMap}
+                milestoneMap={grid.milestoneMap}
+                milestoneWeekCount={grid.milestoneWeekCount}
+                milestoneMonthCount={grid.milestoneMonthCount}
+                milestoneYearCount={grid.milestoneYearCount}
+                onCellClick={handleCellClick}
+              />
+              <p className="mt-6 text-[var(--text-muted)] text-xs select-none">
+                Click any past week to pin a memory. Click the current week for a summary.
+              </p>
+            </>
+          )}
         </main>
 
         {/* Desktop sidebar */}
@@ -271,11 +281,11 @@ export default function App() {
           birthday={user.birthday}
           currentWeekIndex={grid.currentWeekIndex}
           currentEra={grid.eraMap.get(grid.currentWeekIndex)}
-          currentMilestone={milestones.find((m) => m.weekIndex === grid.currentWeekIndex)}
+          memoryCount={milestones.filter(m => m.weekIndex === grid.currentWeekIndex).length}
           pctLived={grid.pctLived}
           weeksLeft={grid.weeksLeft}
           preciseAge={grid.preciseAge}
-          onEditMilestone={() => {
+          onViewMemories={() => {
             setShowCurrentWeek(false);
             setSelectedWeek(grid.currentWeekIndex);
           }}
@@ -288,9 +298,10 @@ export default function App() {
         <MilestoneModal
           weekIndex={selectedWeek}
           birthday={user.birthday}
-          existing={selectedMilestone}
-          onSave={handleMilestoneSave}
-          onDelete={selectedMilestone ? () => handleMilestoneDelete(selectedWeek) : undefined}
+          memories={selectedMemories}
+          onAdd={handleMilestoneAdd}
+          onUpdate={handleMilestoneUpdate}
+          onDelete={handleMilestoneDelete}
           onClose={() => setSelectedWeek(null)}
         />
       )}

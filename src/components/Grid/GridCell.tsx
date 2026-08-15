@@ -5,7 +5,7 @@ interface GridCellProps {
   index: number;
   status: CellStatus;
   eraColor?: string;
-  hasMilestone: boolean;
+  milestoneCount: number;
   viewMode: ViewMode;
   label?: string;
   onClick: (index: number) => void;
@@ -19,10 +19,9 @@ const ROUNDED: Record<ViewMode, string> = {
 };
 
 const GridCell = React.memo(
-  ({ index, status, eraColor, hasMilestone, viewMode, label, onClick, onHover }: GridCellProps) => {
+  ({ index, status, eraColor, milestoneCount, viewMode, label, onClick, onHover }: GridCellProps) => {
     const isFuture = status === 'future';
     const isCurrent = status === 'current';
-    const isPast = status === 'past';
 
     const handleClick = () => {
       if (isFuture) return;
@@ -33,15 +32,29 @@ const GridCell = React.memo(
     if (isCurrent) {
       style.backgroundColor = 'var(--cell-current)';
       style.borderColor = 'var(--cell-current)';
-    } else if (isPast && eraColor) {
-      style.backgroundColor = eraColor + '55';
-      style.borderColor = eraColor + '33';
-    } else if (isPast) {
-      style.backgroundColor = 'var(--cell-past)';
-      style.borderColor = 'var(--cell-past-border)';
-    } else {
+    } else if (isFuture) {
       style.backgroundColor = 'var(--cell-future)';
       style.borderColor = 'var(--cell-future-border)';
+    } else {
+      if (viewMode !== 'weeks' && milestoneCount > 0) {
+        if (eraColor) {
+          const boosted = Math.min(0.85, 0.33 + milestoneCount * 0.13);
+          const bg = Math.round(boosted * 255).toString(16).padStart(2, '0');
+          const br = Math.round(boosted * 0.65 * 255).toString(16).padStart(2, '0');
+          style.backgroundColor = eraColor + bg;
+          style.borderColor = eraColor + br;
+        } else {
+          const alpha = Math.min(0.75, 0.22 + (milestoneCount - 1) * 0.15);
+          style.backgroundColor = `rgba(245, 158, 11, ${alpha})`;
+          style.borderColor = `rgba(245, 158, 11, ${alpha * 0.7})`;
+        }
+      } else if (eraColor) {
+        style.backgroundColor = eraColor + '55';
+        style.borderColor = eraColor + '33';
+      } else {
+        style.backgroundColor = 'var(--cell-past)';
+        style.borderColor = 'var(--cell-past-border)';
+      }
     }
 
     return (
@@ -50,7 +63,7 @@ const GridCell = React.memo(
           'relative border transition-[filter] duration-100 w-full aspect-square',
           ROUNDED[viewMode],
           isCurrent ? 'cell-current cursor-pointer' : '',
-          isPast ? 'cursor-pointer hover:brightness-150' : '',
+          status === 'past' ? 'cursor-pointer hover:brightness-150' : '',
           isFuture ? 'cursor-default' : '',
           viewMode === 'years' ? 'flex items-center justify-center' : '',
         ]
@@ -75,14 +88,10 @@ const GridCell = React.memo(
             {label}
           </span>
         )}
-        {hasMilestone && !isFuture && (
+        {viewMode === 'weeks' && milestoneCount > 0 && !isFuture && (
           <div
             className="absolute rounded-full"
-            style={
-              viewMode === 'years'
-                ? { bottom: 4, right: 4, width: 5, height: 5, background: 'var(--milestone-dot)' }
-                : { bottom: '5%', right: '5%', width: '30%', height: '30%', background: 'var(--milestone-dot)' }
-            }
+            style={{ bottom: '5%', right: '5%', width: '30%', height: '30%', background: 'var(--milestone-dot)' }}
           />
         )}
       </div>

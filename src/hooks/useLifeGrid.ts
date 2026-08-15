@@ -31,19 +31,24 @@ export function useLifeGrid(user: UserConfig, milestones: Milestone[], eras: Era
     const milestoneWeekSet = new Set<number>();
     const milestoneMonthSet = new Set<number>();
     const milestoneYearSet = new Set<number>();
-    const milestoneMap = new Map<number, Milestone>();
+    const milestoneMap = new Map<number, Milestone[]>();
+    const milestoneWeekCount = new Map<number, number>();
+    const milestoneMonthCount = new Map<number, number>();
+    const milestoneYearCount = new Map<number, number>();
 
     const bd = parseBirthday(user.birthday);
     for (const m of milestones) {
       milestoneWeekSet.add(m.weekIndex);
-      milestoneMap.set(m.weekIndex, m);
-
-      // Precise month index using date-fns
+      const arr = milestoneMap.get(m.weekIndex) ?? [];
+      milestoneMap.set(m.weekIndex, [...arr, m]);
+      milestoneWeekCount.set(m.weekIndex, (milestoneWeekCount.get(m.weekIndex) ?? 0) + 1);
       const weekDate = addWeeks(bd, m.weekIndex);
       const absMonth = differenceInMonths(weekDate, bd);
       milestoneMonthSet.add(absMonth);
-
-      milestoneYearSet.add(weekToYear(m.weekIndex));
+      milestoneMonthCount.set(absMonth, (milestoneMonthCount.get(absMonth) ?? 0) + 1);
+      const yr = weekToYear(m.weekIndex);
+      milestoneYearSet.add(yr);
+      milestoneYearCount.set(yr, (milestoneYearCount.get(yr) ?? 0) + 1);
     }
 
     // Stats
@@ -64,6 +69,9 @@ export function useLifeGrid(user: UserConfig, milestones: Milestone[], eras: Era
       milestoneMonthSet,
       milestoneYearSet,
       milestoneMap,
+      milestoneWeekCount,
+      milestoneMonthCount,
+      milestoneYearCount,
       pctLived,
       weeksLeft,
       preciseAge: { years: ageYears, months: ageMonths },

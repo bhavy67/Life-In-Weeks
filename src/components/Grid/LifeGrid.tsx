@@ -19,10 +19,10 @@ interface Props {
   currentMonthIndex: number;
   currentYearIndex: number;
   eraMap: Map<number, Era>;
-  milestoneWeekSet: Set<number>;
-  milestoneMonthSet: Set<number>;
-  milestoneYearSet: Set<number>;
-  milestoneMap: Map<number, Milestone>;
+  milestoneMap: Map<number, Milestone[]>;
+  milestoneWeekCount: Map<number, number>;
+  milestoneMonthCount: Map<number, number>;
+  milestoneYearCount: Map<number, number>;
   onCellClick: (weekIndex: number) => void;
   animateIn?: boolean;
 }
@@ -47,10 +47,10 @@ export default function LifeGrid({
   currentMonthIndex,
   currentYearIndex,
   eraMap,
-  milestoneWeekSet,
-  milestoneMonthSet,
-  milestoneYearSet,
   milestoneMap,
+  milestoneWeekCount,
+  milestoneMonthCount,
+  milestoneYearCount,
   onCellClick,
   animateIn = true,
 }: Props) {
@@ -77,10 +77,10 @@ export default function LifeGrid({
   const rowGap       = viewMode === 'weeks' ? 'mb-[1.5px]' : viewMode === 'months' ? 'mb-[3px]' : 'mb-2';
   const cellGap      = viewMode === 'weeks' ? '1.5px' : viewMode === 'months' ? '3px' : '8px';
   const cellTemplate = viewMode === 'weeks'
-    ? 'minmax(7px, 12px)'
+    ? 'minmax(7px, 18px)'
     : viewMode === 'months'
-      ? 'minmax(18px, 28px)'
-      : 'minmax(44px, 56px)';
+      ? 'minmax(18px, 56px)'
+      : 'minmax(44px, 88px)';
 
   const handleHover = useCallback(
     (cellIndex: number, el: HTMLElement | null) => {
@@ -112,12 +112,12 @@ export default function LifeGrid({
 
       const milestone =
         viewMode === 'weeks'
-          ? milestoneMap.get(cellIndex)
+          ? milestoneMap.get(cellIndex)?.[0]
           : viewMode === 'months'
-            ? [...milestoneMap.values()].find(
+            ? [...milestoneMap.values()].flat().find(
                 (m) => Math.floor((m.weekIndex * 12) / 52) === cellIndex,
               )
-            : [...milestoneMap.values()].find(
+            : [...milestoneMap.values()].flat().find(
                 (m) => Math.floor(m.weekIndex / 52) === cellIndex,
               );
 
@@ -163,12 +163,10 @@ export default function LifeGrid({
             ? 'current'
             : 'future';
 
-      const hasMilestone =
-        viewMode === 'weeks'
-          ? milestoneWeekSet.has(cellIndex)
-          : viewMode === 'months'
-            ? milestoneMonthSet.has(cellIndex)
-            : milestoneYearSet.has(cellIndex);
+      const milestoneCount =
+        viewMode === 'weeks' ? (milestoneWeekCount.get(cellIndex) ?? 0)
+        : viewMode === 'months' ? (milestoneMonthCount.get(cellIndex) ?? 0)
+        : (milestoneYearCount.get(cellIndex) ?? 0);
 
       const label = viewMode === 'years' ? String(cellIndex) : undefined;
 
@@ -178,7 +176,7 @@ export default function LifeGrid({
           index={cellIndex}
           status={status}
           eraColor={era?.color}
-          hasMilestone={hasMilestone}
+          milestoneCount={milestoneCount}
           viewMode={viewMode}
           label={label}
           onClick={handleClick}

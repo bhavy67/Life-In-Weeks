@@ -30,6 +30,10 @@ export function getWeekDateRange(weekIndex: number, birthday: string): string {
   return `${format(start, 'MMM d')} – ${format(end, 'MMM d, yyyy')}`;
 }
 
+export function getWeekStart(weekIndex: number, birthday: string): string {
+  return format(addWeeks(parseBirthday(birthday), weekIndex), 'MMM d, yyyy');
+}
+
 export function getMonthLabel(monthIndex: number, birthday: string): string {
   const bd = parseBirthday(birthday);
   return format(addMonths(bd, monthIndex), 'MMMM yyyy');
