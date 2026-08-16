@@ -28,7 +28,7 @@ export default function MemoriesView({ milestones, birthday, onSelectWeek }: Pro
 
   return (
     <div className="flex-1 overflow-auto p-4 sm:p-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {sorted.map(m => (
           <button
             key={m.id}
