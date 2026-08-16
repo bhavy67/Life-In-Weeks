@@ -137,9 +137,6 @@ export default function App() {
         <div className="text-[var(--text-muted)] text-xs tracking-[0.25em] uppercase select-none hidden sm:block">
           Life in Weeks
         </div>
-        <div className="text-[var(--text-muted)] text-xs tracking-widest uppercase select-none sm:hidden">
-          LiW
-        </div>
 
         {/* View toggle */}
         <div className="flex gap-0.5 bg-[var(--bg-toggle)] border border-[var(--border-faint)] rounded-lg p-0.5">
@@ -148,7 +145,7 @@ export default function App() {
               key={id}
               onClick={() => setViewMode(id)}
               className={[
-                'px-2.5 sm:px-3 py-1 rounded-md text-sm transition-all duration-150',
+                'px-1.5 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-all duration-150',
                 viewMode === id
                   ? 'bg-[var(--bg-active)] text-[var(--text-primary)]'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-tertiary)]',
@@ -160,38 +157,38 @@ export default function App() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center">
           <button
             onClick={() => setShowMobileSidebar(true)}
-            className="lg:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="lg:hidden p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Stats"
           >
             <BarChart2 size={16} />
           </button>
           <button
             onClick={handleShare}
-            className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Copy share link"
           >
             <Share2 size={16} />
           </button>
           <button
             onClick={() => setShowWallpaper(true)}
-            className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="hidden sm:block p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Save as wallpaper"
           >
             <Download size={16} />
           </button>
           <button
             onClick={toggleTheme}
-            className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           <button
             onClick={() => setShowSettings(true)}
-            className="p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Settings"
           >
             <Settings size={16} />

@@ -75,12 +75,12 @@ export default function LifeGrid({
   const rows = viewMode === 'years' ? Math.ceil(lifespan / 10) : lifespan;
 
   const rowGap       = viewMode === 'weeks' ? 'mb-[1.5px]' : viewMode === 'months' ? 'mb-[3px]' : 'mb-2';
-  const cellGap      = viewMode === 'weeks' ? '1.5px' : viewMode === 'months' ? '3px' : '8px';
+  const cellGap      = viewMode === 'weeks' ? '1.5px' : viewMode === 'months' ? '3px' : '6px';
   const cellTemplate = viewMode === 'weeks'
     ? 'minmax(8px, 22px)'
     : viewMode === 'months'
       ? 'minmax(20px, 1fr)'
-      : 'minmax(50px, 1fr)';
+      : 'minmax(0, 1fr)';
 
   const handleHover = useCallback(
     (cellIndex: number, el: HTMLElement | null) => {
@@ -209,7 +209,7 @@ export default function LifeGrid({
 
   return (
     <div className="relative">
-      <div className="overflow-x-auto pb-2">
+      <div className={`${viewMode === 'years' ? 'overflow-x-hidden' : 'overflow-x-auto'} pb-2`}>
         <div className={`w-full ${sweeping ? 'grid-sweep' : ''}`}>
           {Array.from({ length: rows }, (_, row) => (
             <Fragment key={row}>
@@ -233,7 +233,7 @@ export default function LifeGrid({
                 </div>
                 {/* Cells */}
                 <div
-                  className="flex-1 grid"
+                  className={`${viewMode === 'years' ? 'flex-1 min-w-0' : 'flex-1'} grid`}
                   style={{
                     gridTemplateColumns: `repeat(${cols}, ${cellTemplate})`,
                     gap: cellGap,
