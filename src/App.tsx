@@ -174,7 +174,7 @@ export default function App() {
           </button>
           <button
             onClick={() => setShowWallpaper(true)}
-            className="hidden sm:block p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Save as wallpaper"
           >
             <Download size={16} />
