@@ -59,7 +59,7 @@ export function generateWallpaper({
   // ── Grid sizing ────────────────────────────────────────
   // Reserve space: header area 420px from top, footer 210px from bottom
   const GRID_RESERVE_TOP = 420;
-  const GRID_RESERVE_BOT = 210;
+  const GRID_RESERVE_BOT = 280;
 
   const maxCellW = Math.floor((W - 160 - (COLS - 1) * GAP) / COLS);
   const maxCellH = Math.floor((H - GRID_RESERVE_TOP - GRID_RESERVE_BOT - (ROWS - 1) * GAP) / ROWS);
@@ -155,10 +155,9 @@ export function generateWallpaper({
   );
 
   // ── Footer: tagline ────────────────────────────────────
-  // Anchored 140px from the bottom — stays well within safe zones on all phones
   ctx.fillStyle = '#707070';
   ctx.font = `400 26px ${FONT}`;
-  ctx.fillText('Live like you\'re dying.', W / 2, H - 160);
+  ctx.fillText('Live like you\'re dying.', W / 2, H - 170);
   ctx.fillStyle = '#505050';
   ctx.font = `300 22px ${FONT}`;
   ctx.fillText('(cause you are)', W / 2, H - 124);
