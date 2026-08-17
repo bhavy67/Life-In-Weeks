@@ -73,17 +73,17 @@ export function generateWallpaper({
   // ── Header: "LIFE IN WEEKS" ────────────────────────────
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#2a2a2a';
-  ctx.font = `300 24px ${FONT}`;
+  ctx.fillStyle = '#909090';
+  ctx.font = `400 28px ${FONT}`;
   try { (ctx as unknown as Record<string, string>)['letterSpacing'] = '8px'; } catch {}
   ctx.fillText('LIFE IN WEEKS', W / 2, 210);
   try { (ctx as unknown as Record<string, string>)['letterSpacing'] = '0px'; } catch {}
 
   // ── Header: stats line ─────────────────────────────────
-  ctx.fillStyle = '#484848';
-  ctx.font = `300 26px ${FONT}`;
+  ctx.fillStyle = '#c0c0c0';
+  ctx.font = `400 30px ${FONT}`;
   ctx.fillText(
-    `${preciseAge.years} years old  ·  ${pctLived.toFixed(1)}% complete`,
+    `Age ${preciseAge.years}  ·  ${pctLived.toFixed(1)}% complete`,
     W / 2, 330,
   );
 
@@ -146,8 +146,8 @@ export function generateWallpaper({
   // ── Footer: weeks remaining ────────────────────────────
   ctx.shadowBlur = 0;
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#383838';
-  ctx.font = `300 22px ${FONT}`;
+  ctx.fillStyle = '#909090';
+  ctx.font = `400 26px ${FONT}`;
   ctx.fillText(
     `${weeksLeft.toLocaleString()} weeks remaining`,
     W / 2,
@@ -156,9 +156,12 @@ export function generateWallpaper({
 
   // ── Footer: tagline ────────────────────────────────────
   // Anchored 140px from the bottom — stays well within safe zones on all phones
-  ctx.fillStyle = '#2e2e2e';
+  ctx.fillStyle = '#707070';
+  ctx.font = `400 26px ${FONT}`;
+  ctx.fillText('Live like you\'re dying.', W / 2, H - 160);
+  ctx.fillStyle = '#505050';
   ctx.font = `300 22px ${FONT}`;
-  ctx.fillText('The grid fills either way.', W / 2, H - 140);
+  ctx.fillText('(cause you are)', W / 2, H - 124);
 
   return canvas.toDataURL('image/png');
 }

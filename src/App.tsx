@@ -133,7 +133,7 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[var(--bg-app)]">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-[var(--border-faint)] flex-shrink-0">
+      <header className="flex items-center justify-between px-2 sm:px-4 lg:px-6 py-3 border-b border-[var(--border-faint)] flex-shrink-0">
         <div className="text-[var(--text-muted)] text-xs tracking-[0.25em] uppercase select-none hidden sm:block">
           Life in Weeks
         </div>
@@ -145,7 +145,7 @@ export default function App() {
               key={id}
               onClick={() => setViewMode(id)}
               className={[
-                'px-1.5 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-all duration-150',
+                'px-1 sm:px-2 lg:px-3 py-1 rounded-md text-xs sm:text-sm transition-all duration-150',
                 viewMode === id
                   ? 'bg-[var(--bg-active)] text-[var(--text-primary)]'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-tertiary)]',
@@ -160,35 +160,35 @@ export default function App() {
         <div className="flex items-center">
           <button
             onClick={() => setShowMobileSidebar(true)}
-            className="lg:hidden p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="lg:hidden p-1 sm:p-1.5 lg:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Stats"
           >
             <BarChart2 size={16} />
           </button>
           <button
             onClick={handleShare}
-            className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="p-1 sm:p-1.5 lg:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Copy share link"
           >
             <Share2 size={16} />
           </button>
           <button
             onClick={() => setShowWallpaper(true)}
-            className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="p-1 sm:p-1.5 lg:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Save as wallpaper"
           >
             <Download size={16} />
           </button>
           <button
             onClick={toggleTheme}
-            className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="p-1 sm:p-1.5 lg:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           <button
             onClick={() => setShowSettings(true)}
-            className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="p-1 sm:p-1.5 lg:p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             title="Settings"
           >
             <Settings size={16} />
