@@ -1,6 +1,52 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { X, Download } from 'lucide-react';
 import { generateWallpaper, type WallpaperOptions } from '../utils/generateWallpaper';
+
+// ── Preset definitions ─────────────────────────────────────────────────────
+
+type Preset = 'screen' | 'mobile' | 'tablet' | 'desktop';
+
+interface PresetDef {
+  label: string;
+  tip: string;
+  getSize: () => { width: number; height: number };
+}
+
+// Cap DPR at 3 — some Android devices report 4.0 which pushes canvas to ~6k px
+function getScreenSize(): { width: number; height: number } {
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const w = Math.round((window.screen?.width || 1080) * dpr);
+  const h = Math.round((window.screen?.height || 1920) * dpr);
+  // generateWallpaper will further clamp to MAX_DIM=3840 if needed
+  return { width: w, height: h };
+}
+
+const PRESETS: Record<Preset, PresetDef> = {
+  screen: {
+    label: 'This Screen',
+    tip: 'Set it as your wallpaper — your weeks follow you everywhere.',
+    getSize: getScreenSize,
+  },
+  mobile: {
+    label: 'Mobile',
+    tip: 'Set it as your lock screen for a daily reminder — your weeks are finite.',
+    getSize: () => ({ width: 1080, height: 1920 }),
+  },
+  tablet: {
+    label: 'Tablet',
+    tip: 'Save and set as your tablet wallpaper — your grid, always in view.',
+    getSize: () => ({ width: 1668, height: 2224 }),
+  },
+  desktop: {
+    label: 'Desktop',
+    tip: 'Save and set as your desktop wallpaper — every glance is a reminder.',
+    getSize: () => ({ width: 2560, height: 1440 }),
+  },
+};
+
+const PRESET_ORDER: Preset[] = ['screen', 'mobile', 'tablet', 'desktop'];
+
+// ── Component ─────────────────────────────────────────────────────────────
 
 interface Props extends WallpaperOptions {
   userName: string;
@@ -9,18 +55,27 @@ interface Props extends WallpaperOptions {
 }
 
 export default function WallpaperModal({ userName, onClose, onDownload, ...opts }: Props) {
-  // userName is used only for the download filename, not rendered in the wallpaper
+  const [preset, setPreset] = useState<Preset>('screen');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
+  const { width, height } = useMemo(() => PRESETS[preset].getSize(), [preset]);
+  const isLandscape = width > height;
+  const aspectRatio = width / height;
+
+  // Preview container — always 130 px wide; height adapts to aspect ratio
+  const PREVIEW_W = 130;
+  const previewH = Math.min(220, Math.max(70, Math.round(PREVIEW_W / aspectRatio)));
+
+  // Regenerate whenever dimensions change (preset switch or first mount)
   useEffect(() => {
-    // Defer slightly so the modal fade-in animates before the canvas work begins
+    setImageUrl(null);
     const id = setTimeout(() => {
-      setImageUrl(generateWallpaper(opts));
+      setImageUrl(generateWallpaper({ ...opts, targetWidth: width, targetHeight: height }));
     }, 80);
     return () => clearTimeout(id);
-    // opts is stable for the lifetime of this modal — exhaustive deps would re-generate on every render
+    // opts is stable for the modal's lifetime; width/height drive regeneration
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [width, height]);
 
   const handleSave = () => {
     if (!imageUrl) return;
@@ -31,13 +86,15 @@ export default function WallpaperModal({ userName, onClose, onDownload, ...opts 
     onDownload?.();
   };
 
+  const resolvedLabel = `${width.toLocaleString()} × ${height.toLocaleString()} · PNG`;
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div className="w-full max-w-sm bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl p-5 fade-in">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-5">
-          <div className="text-[var(--text-primary)] text-base font-light">Mobile Wallpaper</div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-[var(--text-primary)] text-base font-light">Wallpaper</div>
           <button
             onClick={onClose}
             className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors p-1"
@@ -46,37 +103,45 @@ export default function WallpaperModal({ userName, onClose, onDownload, ...opts 
           </button>
         </div>
 
-        {/* Preview + description */}
-        <div className="flex gap-5 mb-5">
+        {/* Preset selector */}
+        <div className="mb-1">
+          <div className="flex gap-0.5 bg-[var(--bg-toggle)] border border-[var(--border-faint)] rounded-lg p-0.5">
+            {PRESET_ORDER.map((p) => (
+              <button
+                key={p}
+                onClick={() => setPreset(p)}
+                className={[
+                  'flex-1 px-1 py-1 rounded-md text-[11px] leading-tight transition-all duration-150 whitespace-nowrap',
+                  preset === p
+                    ? 'bg-[var(--bg-active)] text-[var(--text-primary)]'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-tertiary)]',
+                ].join(' ')}
+              >
+                {PRESETS[p].label}
+              </button>
+            ))}
+          </div>
+          {/* Resolved dimensions */}
+          <p className="text-[var(--text-muted)] text-[10px] text-center mt-1.5 font-mono">
+            {resolvedLabel}
+          </p>
+        </div>
 
-          {/* Phone mockup */}
-          <div className="flex flex-col items-center flex-shrink-0">
+        {/* Preview + description */}
+        <div className="flex gap-4 mt-4 mb-5 items-start">
+
+          {/* Wallpaper preview */}
+          <div className="flex-shrink-0">
             <div
               className="relative overflow-hidden bg-[#080808]"
               style={{
-                width: 130,
-                height: 231,
-                borderRadius: 18,
+                width: PREVIEW_W,
+                height: previewH,
+                borderRadius: isLandscape ? 10 : 16,
                 border: '2px solid #2a2a2a',
                 boxShadow: '0 0 0 1px #111, 0 8px 32px rgba(0,0,0,0.6)',
               }}
             >
-              {/* Dynamic island */}
-              <div
-                className="absolute z-10"
-                style={{
-                  top: 10,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: 48,
-                  height: 13,
-                  background: '#080808',
-                  borderRadius: 20,
-                  border: '1.5px solid #1a1a1a',
-                }}
-              />
-
-              {/* Wallpaper preview */}
               {imageUrl ? (
                 <img
                   src={imageUrl}
@@ -85,37 +150,39 @@ export default function WallpaperModal({ userName, onClose, onDownload, ...opts 
                   style={{ display: 'block' }}
                 />
               ) : (
-                <div className="w-full h-full bg-[#111] flex items-center justify-center">
-                  <div className="w-8 h-8 border border-[#2a2a2a] rounded-full border-t-[#555] animate-spin" />
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-6 h-6 border border-[#2a2a2a] rounded-full border-t-[#555] animate-spin" />
                 </div>
               )}
             </div>
-            {/* Home indicator */}
-            <div className="mt-2 w-9 h-[4px] bg-[#1e1e1e] rounded-full" />
+            {/* Home indicator — only for portrait-ish presets */}
+            {!isLandscape && (
+              <div className="mt-2 mx-auto w-9 h-[4px] bg-[#1e1e1e] rounded-full" />
+            )}
           </div>
 
           {/* Description */}
-          <div className="flex flex-col justify-between py-1 flex-1 min-w-0">
+          <div className="flex flex-col py-1 flex-1 min-w-0 gap-3">
             <div>
-              <div className="text-[var(--text-primary)] text-sm font-medium mb-1.5 leading-snug">
+              <div className="text-[var(--text-primary)] text-sm font-medium mb-1 leading-snug">
                 Your life, always with you.
               </div>
               <div className="text-[var(--text-tertiary)] text-xs leading-relaxed">
-                A pixel-perfect wallpaper with your full life grid, name, age, and weeks remaining. Built for your lock screen.
+                Full grid, age, and weeks remaining — pixel-perfect for any screen.
               </div>
             </div>
 
-            <div className="mt-4 space-y-1.5">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
-                <span className="text-[var(--text-muted)] text-[11px] font-mono">1080 × 1920 · PNG</span>
+                <div className="w-1 h-1 rounded-full bg-[var(--text-muted)] flex-shrink-0" />
+                <span className="text-[var(--text-muted)] text-[11px] font-mono truncate">{resolvedLabel}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
+                <div className="w-1 h-1 rounded-full bg-[var(--text-muted)] flex-shrink-0" />
                 <span className="text-[var(--text-muted)] text-[11px]">Optimised for AMOLED</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
+                <div className="w-1 h-1 rounded-full bg-[var(--text-muted)] flex-shrink-0" />
                 <span className="text-[var(--text-muted)] text-[11px]">Eras &amp; memories included</span>
               </div>
             </div>
@@ -134,7 +201,7 @@ export default function WallpaperModal({ userName, onClose, onDownload, ...opts 
 
         {/* Tip */}
         <p className="text-[var(--text-muted)] text-[11px] text-center mt-3 leading-relaxed">
-          Set it as your lock screen for a daily reminder — your weeks are finite.
+          {PRESETS[preset].tip}
         </p>
       </div>
     </div>
