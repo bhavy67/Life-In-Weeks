@@ -78,13 +78,20 @@ export function generateWallpaper({
   ctx.fillRect(0, 0, W, H);
 
   // ── Grid sizing ────────────────────────────────────────
-  const GRID_RESERVE_TOP = Math.round(420 * scaleH);
-  const GRID_RESERVE_BOT = Math.round(280 * scaleH);
+  // Landscape screens have limited height — use compact reserves so the grid
+  // can grow larger and leave less empty space around it.
+  const isLandscape = W > H;
+  const HEADER_BASE   = isLandscape ? 240 : 420;
+  const FOOTER_BASE   = isLandscape ? 160 : 280;
+  const CELL_CAP_BASE = isLandscape ? 18  : 14;
+
+  const GRID_RESERVE_TOP = Math.round(HEADER_BASE * scaleH);
+  const GRID_RESERVE_BOT = Math.round(FOOTER_BASE * scaleH);
   const SIDE_MARGIN = Math.round(160 * scaleW);
 
   const maxCellW = Math.floor((W - SIDE_MARGIN - (COLS - 1) * GAP) / COLS);
   const maxCellH = Math.floor((H - GRID_RESERVE_TOP - GRID_RESERVE_BOT - (ROWS - 1) * GAP) / ROWS);
-  const cellSizeCap = Math.max(4, Math.round(14 * scale));
+  const cellSizeCap = Math.max(4, Math.round(CELL_CAP_BASE * scale));
   const cellSize = Math.max(1, Math.min(maxCellW, maxCellH, cellSizeCap));
 
   const gridW = COLS * cellSize + (COLS - 1) * GAP;
@@ -93,8 +100,12 @@ export function generateWallpaper({
   const gridY = GRID_RESERVE_TOP;
 
   // ── Header: "LIFE IN WEEKS" ────────────────────────────
+  // Landscape: positions are proportional to the (smaller) header zone.
+  // Portrait: positions use the original absolute-scaled values.
   const titleFontSize = Math.max(12, Math.round(28 * scale));
-  const titleY = Math.round(210 * scaleH);
+  const titleY = isLandscape
+    ? Math.round(GRID_RESERVE_TOP * 0.35)
+    : Math.round(210 * scaleH);
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
@@ -106,7 +117,9 @@ export function generateWallpaper({
 
   // ── Header: stats line ─────────────────────────────────
   const statsFontSize = Math.max(14, Math.round(30 * scale));
-  const statsY = Math.round(330 * scaleH);
+  const statsY = isLandscape
+    ? Math.round(GRID_RESERVE_TOP * 0.72)
+    : Math.round(330 * scaleH);
 
   ctx.fillStyle = '#c0c0c0';
   ctx.font = `400 ${statsFontSize}px ${FONT}`;
@@ -116,7 +129,9 @@ export function generateWallpaper({
   );
 
   // ── Separator ──────────────────────────────────────────
-  const separatorY = Math.round(374 * scaleH);
+  const separatorY = isLandscape
+    ? Math.round(GRID_RESERVE_TOP * 0.88)
+    : Math.round(374 * scaleH);
   ctx.strokeStyle = '#161616';
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -189,8 +204,9 @@ export function generateWallpaper({
   );
 
   // ── Footer: tagline ────────────────────────────────────
-  const tagline1Y = H - Math.round(170 * scaleH);
-  const tagline2Y = H - Math.round(124 * scaleH);
+  // Landscape has a much shorter footer zone — anchor closer to the bottom.
+  const tagline1Y = H - Math.round((isLandscape ? 80 : 170) * scaleH);
+  const tagline2Y = H - Math.round((isLandscape ? 45 : 124) * scaleH);
 
   ctx.fillStyle = '#707070';
   ctx.font = `400 ${footerFontSize}px ${FONT}`;
