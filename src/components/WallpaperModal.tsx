@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { X, Download } from 'lucide-react';
-import { generateWallpaper, type WallpaperOptions } from '../utils/generateWallpaper';
+import { generateWallpaper, type WallpaperOptions, type DarkPalette } from '../utils/generateWallpaper';
 
 // ── Preset definitions ─────────────────────────────────────────────────────
 
@@ -46,6 +46,15 @@ const PRESETS: Record<Preset, PresetDef> = {
 
 const PRESET_ORDER: Preset[] = ['screen', 'mobile', 'tablet', 'desktop'];
 
+// ── Dark palette definitions ───────────────────────────────────────────────
+
+const DARK_PALETTE_DEFS: { id: DarkPalette; label: string; swatch: string; hint: string }[] = [
+  { id: 'obsidian', label: 'Obsidian', swatch: '#111111', hint: 'Deep black, AMOLED-ready' },
+  { id: 'slate',    label: 'Slate',    swatch: '#0c0e14', hint: 'Cool blue-gray, calm & refined' },
+  { id: 'warm',     label: 'Warm',     swatch: '#100d09', hint: 'Amber tint, personal feel' },
+  { id: 'graphite', label: 'Graphite', swatch: '#141414', hint: 'Softer gray, most readable' },
+];
+
 // ── Component ─────────────────────────────────────────────────────────────
 
 interface Props extends WallpaperOptions {
@@ -58,6 +67,7 @@ interface Props extends WallpaperOptions {
 export default function WallpaperModal({ userName, theme, onClose, onDownload, ...opts }: Props) {
   const isDark = theme === 'dark';
   const [preset, setPreset] = useState<Preset>('screen');
+  const [darkPalette, setDarkPalette] = useState<DarkPalette>('obsidian');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const { width, height } = useMemo(() => PRESETS[preset].getSize(), [preset]);
@@ -68,16 +78,16 @@ export default function WallpaperModal({ userName, theme, onClose, onDownload, .
   const PREVIEW_W = 130;
   const previewH = Math.min(220, Math.max(70, Math.round(PREVIEW_W / aspectRatio)));
 
-  // Regenerate whenever dimensions change (preset switch or first mount)
+  // Regenerate whenever dimensions or dark palette change
   useEffect(() => {
     setImageUrl(null);
     const id = setTimeout(() => {
-      setImageUrl(generateWallpaper({ ...opts, theme, targetWidth: width, targetHeight: height }));
+      setImageUrl(generateWallpaper({ ...opts, theme, darkPalette, targetWidth: width, targetHeight: height }));
     }, 80);
     return () => clearTimeout(id);
-    // opts is stable for the modal's lifetime; width/height drive regeneration
+    // opts/theme are stable for the modal's lifetime; width/height/darkPalette drive regeneration
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height]);
+  }, [width, height, darkPalette]);
 
   const handleSave = () => {
     if (!imageUrl) return;
@@ -129,6 +139,32 @@ export default function WallpaperModal({ userName, theme, onClose, onDownload, .
           </p>
         </div>
 
+        {/* Dark palette selector */}
+        {isDark && (
+          <div className="mt-3 mb-1">
+            <div className="flex gap-1.5">
+              {DARK_PALETTE_DEFS.map(({ id, label, swatch }) => (
+                <button
+                  key={id}
+                  onClick={() => setDarkPalette(id)}
+                  className={[
+                    'flex-1 flex items-center justify-center gap-1 py-1 rounded-md text-[11px] border transition-all duration-150',
+                    darkPalette === id
+                      ? 'border-[var(--border-elevated)] text-[var(--text-primary)] bg-[var(--bg-active)]'
+                      : 'border-[var(--border-faint)] text-[var(--text-muted)] hover:text-[var(--text-tertiary)]',
+                  ].join(' ')}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0 border border-white/10"
+                    style={{ background: swatch }}
+                  />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Preview + description */}
         <div className="flex gap-4 mt-4 mb-5 items-start">
 
@@ -140,7 +176,9 @@ export default function WallpaperModal({ userName, theme, onClose, onDownload, .
                 width: PREVIEW_W,
                 height: previewH,
                 borderRadius: isLandscape ? 10 : 16,
-                background: isDark ? '#080808' : '#f2f2f2',
+                background: isDark
+                  ? DARK_PALETTE_DEFS.find(p => p.id === darkPalette)!.swatch
+                  : '#f2f2f2',
                 border: `2px solid ${isDark ? '#2a2a2a' : '#d0d0d0'}`,
                 boxShadow: isDark
                   ? '0 0 0 1px #111, 0 8px 32px rgba(0,0,0,0.6)'
@@ -194,7 +232,9 @@ export default function WallpaperModal({ userName, theme, onClose, onDownload, .
               <div className="flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-[var(--text-muted)] flex-shrink-0" />
                 <span className="text-[var(--text-muted)] text-[11px]">
-                  {isDark ? 'Optimised for AMOLED' : 'Optimised for light displays'}
+                  {isDark
+                    ? DARK_PALETTE_DEFS.find(p => p.id === darkPalette)!.hint
+                    : 'Optimised for light displays'}
                 </span>
               </div>
               <div className="flex items-center gap-2">

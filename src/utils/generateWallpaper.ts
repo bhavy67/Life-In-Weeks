@@ -1,5 +1,7 @@
 import type { Era } from '../types';
 
+export type DarkPalette = 'obsidian' | 'slate' | 'warm' | 'graphite';
+
 export interface WallpaperOptions {
   lifespan: number;
   currentWeekIndex: number;
@@ -9,6 +11,7 @@ export interface WallpaperOptions {
   preciseAge: { years: number; months: number };
   weeksLeft: number;
   theme?: 'dark' | 'light';
+  darkPalette?: DarkPalette;
   targetWidth?: number;
   targetHeight?: number;
 }
@@ -29,20 +32,79 @@ interface ThemeColors {
   eraAlpha: number;
 }
 
-const DARK: ThemeColors = {
-  bg: '#080808',
-  cellPast: '#343434',
-  cellFuture: '#161616',
+// Deep AMOLED black — readable text matching the app's new dark palette
+const OBSIDIAN: ThemeColors = {
+  bg: '#111111',
+  cellPast: '#464646',
+  cellFuture: '#242424',
   cellCurrent: '#ffffff',
-  cellCurrentGlow: 'rgba(255,255,255,0.7)',
-  textTitle: '#909090',
-  textStats: '#c0c0c0',
-  separator: '#1a1a1a',
-  textFooter: '#909090',
-  textTagline1: '#707070',
-  textTagline2: '#505050',
+  cellCurrentGlow: 'rgba(255,255,255,0.65)',
+  textTitle: '#a8a8a8',
+  textStats: '#d8d8d8',
+  separator: '#242424',
+  textFooter: '#a8a8a8',
+  textTagline1: '#888888',
+  textTagline2: '#686868',
   milestoneDot: '#f59e0b',
-  eraAlpha: 0.38,
+  eraAlpha: 0.40,
+};
+
+// Cool blue-gray tint — feels refined and calm
+const SLATE: ThemeColors = {
+  bg: '#0c0e14',
+  cellPast: '#232b3a',
+  cellFuture: '#13171f',
+  cellCurrent: '#c8dcf0',
+  cellCurrentGlow: 'rgba(180,210,245,0.65)',
+  textTitle: '#6a8faa',
+  textStats: '#a8c0d8',
+  separator: '#181e28',
+  textFooter: '#6a8faa',
+  textTagline1: '#506070',
+  textTagline2: '#384858',
+  milestoneDot: '#f59e0b',
+  eraAlpha: 0.35,
+};
+
+// Amber/sepia — warm and personal
+const WARM: ThemeColors = {
+  bg: '#100d09',
+  cellPast: '#382e22',
+  cellFuture: '#1e1912',
+  cellCurrent: '#f0d8b0',
+  cellCurrentGlow: 'rgba(240,210,160,0.65)',
+  textTitle: '#a09070',
+  textStats: '#d0b880',
+  separator: '#201a10',
+  textFooter: '#a09070',
+  textTagline1: '#806040',
+  textTagline2: '#604828',
+  milestoneDot: '#f59e0b',
+  eraAlpha: 0.35,
+};
+
+// Softer gray background — most readable, Material-like
+const GRAPHITE: ThemeColors = {
+  bg: '#141414',
+  cellPast: '#303030',
+  cellFuture: '#202020',
+  cellCurrent: '#f5f5f5',
+  cellCurrentGlow: 'rgba(245,245,245,0.6)',
+  textTitle: '#b8b8b8',
+  textStats: '#e8e8e8',
+  separator: '#2a2a2a',
+  textFooter: '#b8b8b8',
+  textTagline1: '#989898',
+  textTagline2: '#787878',
+  milestoneDot: '#f59e0b',
+  eraAlpha: 0.42,
+};
+
+const DARK_PALETTES: Record<DarkPalette, ThemeColors> = {
+  obsidian: OBSIDIAN,
+  slate: SLATE,
+  warm: WARM,
+  graphite: GRAPHITE,
 };
 
 const LIGHT: ThemeColors = {
@@ -98,10 +160,11 @@ export function generateWallpaper({
   preciseAge,
   weeksLeft,
   theme = 'dark',
+  darkPalette = 'obsidian',
   targetWidth,
   targetHeight,
 }: WallpaperOptions): string {
-  const C = theme === 'light' ? LIGHT : DARK;
+  const C = theme === 'light' ? LIGHT : DARK_PALETTES[darkPalette];
   const [W, H] = clampDimensions(
     Math.max(1, targetWidth ?? 1080),
     Math.max(1, targetHeight ?? 1920),

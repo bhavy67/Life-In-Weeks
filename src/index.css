@@ -14,43 +14,47 @@
 :root {
   color-scheme: dark;
 
-  --bg-app:     #0d0d0d;
-  --bg-surface: #161616;
-  --bg-input:   #1d1d1d;
-  --bg-hover:   #1f1f1f;
-  --bg-toggle:  #111111;
-  --bg-active:  #282828;
+  /* Backgrounds — lifted from near-black to comfortable dark (à la Linear / Notion) */
+  --bg-app:     #161616;
+  --bg-surface: #1e1e1e;
+  --bg-input:   #262626;
+  --bg-hover:   #282828;
+  --bg-toggle:  #1a1a1a;
+  --bg-active:  #333333;
 
-  --border:          #2c2c2c;
-  --border-subtle:   #222222;
-  --border-faint:    #1c1c1c;
-  --border-elevated: #3a3a3a;
+  /* Borders — visible at low brightness now */
+  --border:          #3a3a3a;
+  --border-subtle:   #2e2e2e;
+  --border-faint:    #282828;
+  --border-elevated: #4a4a4a;
 
-  --text-primary:   #e2e2e2;
-  --text-secondary: #909090;
-  --text-tertiary:  #686868;
-  --text-muted:     #484848;
+  /* Text — muted text was the biggest readability problem */
+  --text-primary:   #ebebeb;
+  --text-secondary: #a8a8a8;
+  --text-tertiary:  #888888;
+  --text-muted:     #686868;
 
-  --btn-bg:    #e8e8e8;
-  --btn-text:  #0d0d0d;
-  --btn-hover: #d0d0d0;
+  --btn-bg:    #ebebeb;
+  --btn-text:  #161616;
+  --btn-hover: #d4d4d4;
 
-  --progress-track: #1e1e1e;
-  --progress-fill:  #484848;
+  --progress-track: #282828;
+  --progress-fill:  #5e5e5e;
 
-  --cell-past:          #3a3a3a;
-  --cell-past-border:   #4a4a4a;
-  --cell-future:        #1a1a1a;
-  --cell-future-border: #252525;
+  /* Cells — future cells now distinguishable from background */
+  --cell-past:          #464646;
+  --cell-past-border:   #565656;
+  --cell-future:        #282828;
+  --cell-future-border: #343434;
   --cell-current:       #ffffff;
   --cell-glow-near:     rgba(255, 255, 255, 0.9);
   --cell-glow-mid:      rgba(255, 255, 255, 0.45);
   --cell-glow-far:      rgba(255, 255, 255, 0.15);
-  --cell-label-current: #000000;
-  --cell-label-past:    #777777;
-  --cell-label-future:  #2d2d2d;
+  --cell-label-current: #161616;
+  --cell-label-past:    #909090;
+  --cell-label-future:  #404040;
 
-  --scrollbar:        #2e2e2e;
+  --scrollbar:        #3e3e3e;
   --milestone-dot:    #f59e0b;
   --milestone-dot-2:  #818cf8;
 }
