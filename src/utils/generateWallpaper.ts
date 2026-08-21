@@ -8,9 +8,58 @@ export interface WallpaperOptions {
   pctLived: number;
   preciseAge: { years: number; months: number };
   weeksLeft: number;
+  theme?: 'dark' | 'light';
   targetWidth?: number;
   targetHeight?: number;
 }
+
+interface ThemeColors {
+  bg: string;
+  cellPast: string;
+  cellFuture: string;
+  cellCurrent: string;
+  cellCurrentGlow: string;
+  textTitle: string;
+  textStats: string;
+  separator: string;
+  textFooter: string;
+  textTagline1: string;
+  textTagline2: string;
+  milestoneDot: string;
+  eraAlpha: number;
+}
+
+const DARK: ThemeColors = {
+  bg: '#080808',
+  cellPast: '#343434',
+  cellFuture: '#161616',
+  cellCurrent: '#ffffff',
+  cellCurrentGlow: 'rgba(255,255,255,0.7)',
+  textTitle: '#909090',
+  textStats: '#c0c0c0',
+  separator: '#1a1a1a',
+  textFooter: '#909090',
+  textTagline1: '#707070',
+  textTagline2: '#505050',
+  milestoneDot: '#f59e0b',
+  eraAlpha: 0.38,
+};
+
+const LIGHT: ThemeColors = {
+  bg: '#f2f2f2',
+  cellPast: '#c4c4c4',
+  cellFuture: '#e2e2e2',
+  cellCurrent: '#111111',
+  cellCurrentGlow: 'rgba(0,0,0,0.4)',
+  textTitle: '#aaaaaa',
+  textStats: '#444444',
+  separator: '#d4d4d4',
+  textFooter: '#888888',
+  textTagline1: '#777777',
+  textTagline2: '#aaaaaa',
+  milestoneDot: '#d97706',
+  eraAlpha: 0.35,
+};
 
 function hexToRgb(hex: string): [number, number, number] {
   const n = parseInt(hex.replace('#', ''), 16);
@@ -48,9 +97,11 @@ export function generateWallpaper({
   pctLived,
   preciseAge,
   weeksLeft,
+  theme = 'dark',
   targetWidth,
   targetHeight,
 }: WallpaperOptions): string {
+  const C = theme === 'light' ? LIGHT : DARK;
   const [W, H] = clampDimensions(
     Math.max(1, targetWidth ?? 1080),
     Math.max(1, targetHeight ?? 1920),
@@ -74,7 +125,7 @@ export function generateWallpaper({
   const GAP = Math.max(1, Math.round(2 * scale));
 
   // ── Background ─────────────────────────────────────────
-  ctx.fillStyle = '#080808';
+  ctx.fillStyle = C.bg;
   ctx.fillRect(0, 0, W, H);
 
   // ── Grid sizing ────────────────────────────────────────
@@ -109,7 +160,7 @@ export function generateWallpaper({
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#909090';
+  ctx.fillStyle = C.textTitle;
   ctx.font = `400 ${titleFontSize}px ${FONT}`;
   try { (ctx as unknown as Record<string, string>)['letterSpacing'] = '8px'; } catch {}
   ctx.fillText('LIFE IN WEEKS', W / 2, titleY);
@@ -121,7 +172,7 @@ export function generateWallpaper({
     ? Math.round(GRID_RESERVE_TOP * 0.72)
     : Math.round(330 * scaleH);
 
-  ctx.fillStyle = '#c0c0c0';
+  ctx.fillStyle = C.textStats;
   ctx.font = `400 ${statsFontSize}px ${FONT}`;
   ctx.fillText(
     `Age ${preciseAge.years}  ·  ${pctLived.toFixed(1)}% complete`,
@@ -132,7 +183,7 @@ export function generateWallpaper({
   const separatorY = isLandscape
     ? Math.round(GRID_RESERVE_TOP * 0.88)
     : Math.round(374 * scaleH);
-  ctx.strokeStyle = '#161616';
+  ctx.strokeStyle = C.separator;
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(gridX, separatorY);
@@ -156,16 +207,16 @@ export function generateWallpaper({
       ctx.shadowBlur = 0;
 
       if (isCurrent) {
-        ctx.shadowColor = 'rgba(255, 255, 255, 0.7)';
+        ctx.shadowColor = C.cellCurrentGlow;
         ctx.shadowBlur = cellSize * 2;
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = C.cellCurrent;
       } else if (isPast && era) {
         const [r, g, b] = hexToRgb(era.color);
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.38)`;
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${C.eraAlpha})`;
       } else if (isPast) {
-        ctx.fillStyle = '#343434';
+        ctx.fillStyle = C.cellPast;
       } else {
-        ctx.fillStyle = '#161616';
+        ctx.fillStyle = C.cellFuture;
       }
 
       fillRoundRect(ctx, x, y, cellSize, cellSize, cellRadius);
@@ -175,7 +226,7 @@ export function generateWallpaper({
       if (milestoneWeekSet.has(weekIdx) && !isCurrent) {
         const dotR = Math.max(1, cellSize * 0.2);
         ctx.shadowBlur = 0;
-        ctx.fillStyle = '#f59e0b';
+        ctx.fillStyle = C.milestoneDot;
         ctx.beginPath();
         ctx.arc(
           x + cellSize - dotR - 0.5,
@@ -195,7 +246,7 @@ export function generateWallpaper({
 
   ctx.shadowBlur = 0;
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#909090';
+  ctx.fillStyle = C.textFooter;
   ctx.font = `400 ${footerFontSize}px ${FONT}`;
   ctx.fillText(
     `${weeksLeft.toLocaleString()} weeks remaining`,
@@ -208,11 +259,11 @@ export function generateWallpaper({
   const tagline1Y = H - Math.round((isLandscape ? 80 : 170) * scaleH);
   const tagline2Y = H - Math.round((isLandscape ? 45 : 124) * scaleH);
 
-  ctx.fillStyle = '#707070';
+  ctx.fillStyle = C.textTagline1;
   ctx.font = `400 ${footerFontSize}px ${FONT}`;
   ctx.fillText("Live like you're dying.", W / 2, tagline1Y);
 
-  ctx.fillStyle = '#505050';
+  ctx.fillStyle = C.textTagline2;
   ctx.font = `300 ${Math.max(10, Math.round(22 * scale))}px ${FONT}`;
   ctx.fillText('(cause you are)', W / 2, tagline2Y);
 

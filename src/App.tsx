@@ -322,6 +322,7 @@ export default function App() {
       {showWallpaper && (
         <WallpaperModal
           userName={user.name}
+          theme={theme}
           lifespan={user.lifespan}
           currentWeekIndex={grid.currentWeekIndex}
           milestoneWeekSet={grid.milestoneWeekSet}

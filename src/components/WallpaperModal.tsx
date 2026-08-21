@@ -50,11 +50,13 @@ const PRESET_ORDER: Preset[] = ['screen', 'mobile', 'tablet', 'desktop'];
 
 interface Props extends WallpaperOptions {
   userName: string;
+  theme: 'dark' | 'light';
   onClose: () => void;
   onDownload?: () => void;
 }
 
-export default function WallpaperModal({ userName, onClose, onDownload, ...opts }: Props) {
+export default function WallpaperModal({ userName, theme, onClose, onDownload, ...opts }: Props) {
+  const isDark = theme === 'dark';
   const [preset, setPreset] = useState<Preset>('screen');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -70,7 +72,7 @@ export default function WallpaperModal({ userName, onClose, onDownload, ...opts 
   useEffect(() => {
     setImageUrl(null);
     const id = setTimeout(() => {
-      setImageUrl(generateWallpaper({ ...opts, targetWidth: width, targetHeight: height }));
+      setImageUrl(generateWallpaper({ ...opts, theme, targetWidth: width, targetHeight: height }));
     }, 80);
     return () => clearTimeout(id);
     // opts is stable for the modal's lifetime; width/height drive regeneration
@@ -133,13 +135,16 @@ export default function WallpaperModal({ userName, onClose, onDownload, ...opts 
           {/* Wallpaper preview */}
           <div className="flex-shrink-0">
             <div
-              className="relative overflow-hidden bg-[#080808]"
+              className="relative overflow-hidden"
               style={{
                 width: PREVIEW_W,
                 height: previewH,
                 borderRadius: isLandscape ? 10 : 16,
-                border: '2px solid #2a2a2a',
-                boxShadow: '0 0 0 1px #111, 0 8px 32px rgba(0,0,0,0.6)',
+                background: isDark ? '#080808' : '#f2f2f2',
+                border: `2px solid ${isDark ? '#2a2a2a' : '#d0d0d0'}`,
+                boxShadow: isDark
+                  ? '0 0 0 1px #111, 0 8px 32px rgba(0,0,0,0.6)'
+                  : '0 0 0 1px #e0e0e0, 0 8px 32px rgba(0,0,0,0.12)',
               }}
             >
               {imageUrl ? (
@@ -151,13 +156,22 @@ export default function WallpaperModal({ userName, onClose, onDownload, ...opts 
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <div className="w-6 h-6 border border-[#2a2a2a] rounded-full border-t-[#555] animate-spin" />
+                  <div
+                    className="w-6 h-6 rounded-full animate-spin"
+                    style={{
+                      border: `1.5px solid ${isDark ? '#2a2a2a' : '#d0d0d0'}`,
+                      borderTopColor: isDark ? '#555' : '#999',
+                    }}
+                  />
                 </div>
               )}
             </div>
             {/* Home indicator — only for portrait-ish presets */}
             {!isLandscape && (
-              <div className="mt-2 mx-auto w-9 h-[4px] bg-[#1e1e1e] rounded-full" />
+              <div
+                className="mt-2 mx-auto w-9 h-[4px] rounded-full"
+                style={{ background: isDark ? '#1e1e1e' : '#d4d4d4' }}
+              />
             )}
           </div>
 
@@ -179,7 +193,9 @@ export default function WallpaperModal({ userName, onClose, onDownload, ...opts 
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-[var(--text-muted)] flex-shrink-0" />
-                <span className="text-[var(--text-muted)] text-[11px]">Optimised for AMOLED</span>
+                <span className="text-[var(--text-muted)] text-[11px]">
+                  {isDark ? 'Optimised for AMOLED' : 'Optimised for light displays'}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-[var(--text-muted)] flex-shrink-0" />
@@ -199,8 +215,14 @@ export default function WallpaperModal({ userName, onClose, onDownload, ...opts 
           Save Wallpaper
         </button>
 
+        {/* Theme note */}
+        <p className="text-[var(--text-muted)] text-[11px] text-center mt-2 leading-relaxed">
+          Wallpaper uses your current <span className="text-[var(--text-tertiary)]">{isDark ? 'dark' : 'light'}</span> theme.
+          Switch theme before downloading to get the other version.
+        </p>
+
         {/* Tip */}
-        <p className="text-[var(--text-muted)] text-[11px] text-center mt-3 leading-relaxed">
+        <p className="text-[var(--text-muted)] text-[11px] text-center mt-2 leading-relaxed">
           {PRESETS[preset].tip}
         </p>
       </div>
